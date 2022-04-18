@@ -1,7 +1,7 @@
 extern crate xgboost;
 use ndarray::prelude::*;
 
-use xgboost::DMatrix;
+use xgboost::{parameters, Booster, DMatrix};
 
 use pyo3::{
     prelude::*,
@@ -51,8 +51,7 @@ fn main() {
     // println!("{:?}", x_train_array.shape()[0]);
 
     let train_shape = x_train_array.raw_dim();
-    let test_shape = x_test_array.shape();
-
+    let test_shape = x_test_array.raw_dim();
 
     println!("{:?}", train_shape);
 
@@ -65,7 +64,7 @@ fn main() {
         *num_rows_train,
     )
     .unwrap();
-    
+
     let mut dtest = DMatrix::from_dense(
         x_test_array
             .into_shape(test_shape[0] * test_shape[1])
@@ -76,7 +75,46 @@ fn main() {
     )
     .unwrap();
 
-    // dtrain
-    //     .set_labels(y_train_array.as_slice().unwrap())
-    //     .unwrap();
+    dtrain
+        .set_labels(y_train_array.as_slice().unwrap())
+        .unwrap();
+
+    dtest.set_labels(y_test_array.as_slice().unwrap()).unwrap();
+
+    let learning_params = parameters::learning::LearningTaskParametersBuilder::default()
+        .objective(parameters::learning::Objective::BinaryLogistic)
+        .build()
+        .unwrap();
+
+    // configure the tree-based learning model's parameters
+    let tree_params = parameters::tree::TreeBoosterParametersBuilder::default()
+        .max_depth(2)
+        .eta(1.0)
+        .build()
+        .unwrap();
+
+    // overall configuration for Booster
+    let booster_params = parameters::BoosterParametersBuilder::default()
+        .booster_type(parameters::BoosterType::Tree(tree_params))
+        .learning_params(learning_params)
+        .verbose(true)
+        .build()
+        .unwrap();
+
+    // specify datasets to evaluate against during training
+    let evaluation_sets = &[(&dtrain, "train"), (&dtest, "test")];
+
+    // overall configuration for training/evaluation
+    let params = parameters::TrainingParametersBuilder::default()
+        .dtrain(&dtrain) // dataset to train with
+        .boost_rounds(2) // number of training iterations
+        .booster_params(booster_params) // model parameters
+        .evaluation_sets(Some(evaluation_sets)) // optional datasets to evaluate against in each iteration
+        .build()
+        .unwrap();
+
+    // train model, and print evaluation data
+    let bst = Booster::train(&params).unwrap();
+
+    println!("{:?}", bst.predict(&dtest).unwrap());
 }
