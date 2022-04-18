@@ -9,3 +9,5 @@ edition = "2021"
 xgboost = "*"
 polars = {version="*", features=["ndarray", "strings"]}
 labello = "*"
+pyo3= {version="*", features=["auto-initialize"]}
+ndarray = "*"
