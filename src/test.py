@@ -1,19 +1,32 @@
 import pandas as pd
+import numpy as np
 
 from sklearn.preprocessing import LabelEncoder
 
-df_train = pd.read_csv('datasets/urban/train_data.csv')
-df_test = pd.read_csv('datasets/urban/test_data.csv')
 
-label_encoder = LabelEncoder()
-df_train["class_enc"] = label_encoder.fit_transform(df_train["class"])
-df_train.drop(["class"], axis=1, inplace=True)
-df_train.to_csv('datasets/urban/train_data_enc.csv')
+def load_data(dataset):
 
-label_encoder = LabelEncoder()
-df_test["class_enc"] = label_encoder.fit_transform(df_test["class"])
-df_test.drop(["class"], axis=1, inplace=True)
-df_test.to_csv('datasets/urban/test_data_enc.csv')
+    print(f"got {dataset} from rust")
 
+    df_train = pd.read_csv(f'datasets/{dataset}/train_data.csv')
+    df_test = pd.read_csv(f'datasets/{dataset}/test_data.csv')
 
-print("python done")
+    # get categorical columns
+    categorical_columns = df_train.select_dtypes(include=['object']).columns
+
+    # iterate over categorical columns and apply encoding
+    for col in categorical_columns:
+
+        label_encoder = LabelEncoder()
+        df_train[f"{col}"] = label_encoder.fit_transform(
+            df_train[col])
+
+        df_test[f"{col}"] = label_encoder.fit_transform(
+            df_test[col])
+
+    df_train.to_csv(
+        f'datasets/{dataset}/train_data_enc.csv', index=False)
+    df_test.to_csv(
+        f'datasets/{dataset}/test_data_enc.csv', index=False)
+
+    print("python done")
