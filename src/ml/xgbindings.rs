@@ -1,17 +1,9 @@
-use ndarray::Array;
-use polars::{
-    datatypes::Float32Type,
-    io::SerReader,
-    prelude::{CsvReader, DataFrame},
+use xgboost::{
+    parameters::{self, learning::LearningTaskParametersBuilder, BoosterParametersBuilder},
+    Booster, DMatrix,
 };
-use pyo3::types::PyModule;
-use xgboost::{parameters, Booster, DMatrix};
 
 use crate::ml::data_processing;
-
-pub fn test_print() {
-    println!("Hello, world!");
-}
 
 pub enum Datasts {
     Titanic,
@@ -20,15 +12,15 @@ pub enum Datasts {
 }
 
 pub fn run(set: Datasts) {
-
     // specify dataset parameters
     let (dataset, target_column, xg_classifier) = get_target_column(set);
 
     // use python to preprocess data
     data_processing::run_through_python(dataset);
-    
+
     // read preprocessed data to rust
-    let (x_train_array, x_test_array, y_train_array, y_test_array) = data_processing::get_data_matrix(dataset, target_column);
+    let (x_train_array, x_test_array, y_train_array, y_test_array) =
+        data_processing::get_data_matrix(dataset, target_column);
 
     let train_shape = x_train_array.raw_dim();
     let test_shape = x_test_array.raw_dim();
@@ -64,51 +56,8 @@ pub fn run(set: Datasts) {
 
     dtest.set_labels(y_test_array.as_slice().unwrap()).unwrap();
 
-    /*
-    ---------------------------------------------------------------------------------
-     *  SPECIFY XGBOOST PARAMETERS
-     *
-     *  ---------------------------------------------------------------------------------
-    */
-
-    // let learning_params = parameters::learning::LearningTaskParametersBuilder::default()
-    //     .objective(parameters::learning::Objective::BinaryLogistic)
-    //     .build()
-    //     .unwrap();
-
-    // configure the tree-based learning model's parameters
-    // let tree_params = parameters::tree::TreeBoosterParametersBuilder::default()
-    //     .max_depth(5)
-    //     .eta(1.0)
-    //     .num_parallel_tree(100)
-    //     .colsample_bytree(0.8)
-    //     .build()
-    //     .unwrap();
-
-    // overall configuration for Booster
-    // let booster_params = parameters::BoosterParametersBuilder::default()
-    //     .booster_type(parameters::BoosterType::Tree(tree_params))
-    //     .learning_params(learning_params)
-    //     .verbose(true)
-    //     .build()
-    //     .unwrap();
-
-    // specify datasets to evaluate against during training
-    let evaluation_sets = &[(&dtrain, "train"), (&dtest, "test")];
-
-    // overall configuration for training/evaluation
-    // let params = parameters::TrainingParametersBuilder::default()
-    //     .dtrain(&dtrain) // dataset to train with
-    //     .boost_rounds(2) // number of training iterations
-    //     .booster_params(booster_params) // model parameters
-    //     .evaluation_sets(Some(evaluation_sets)) // optional datasets to evaluate against in each iteration
-    //     .build()
-    //     .unwrap();
-
-    // let prms = parameters::TrainingParametersBuilder::default()
-    //     .dtrain(&dtrain)
-    //     .build()
-    //     .unwrap();
+    // optional
+    // let evaluation_sets = &[(&dtrain, "train"), (&dtest, "test")];
 
     // RANDOM FOREST SETUP -----------------------------------
 
@@ -122,12 +71,12 @@ pub fn run(set: Datasts) {
         .build()
         .unwrap();
 
-    let rf_learning_params = parameters::learning::LearningTaskParametersBuilder::default()
+    let rf_learning_params = LearningTaskParametersBuilder::default()
         .objective(xg_classifier)
         .build()
         .unwrap();
 
-    let rf_booster_params = parameters::BoosterParametersBuilder::default()
+    let rf_booster_params = BoosterParametersBuilder::default()
         .booster_type(parameters::BoosterType::Tree(rf_tree_params))
         .learning_params(rf_learning_params)
         .build()
