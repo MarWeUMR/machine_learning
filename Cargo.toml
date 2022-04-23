@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-xgboost = {git = "https://github.com/MarWeUMR/rust-xgboost"}
+xgboost = "*"
 polars = {version="*", features=["ndarray", "strings"]}
 pyo3= {version="*", features=["auto-initialize"]}
 ndarray = "*"
