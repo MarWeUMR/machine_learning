@@ -10,3 +10,4 @@ xgboost = "*"
 polars = {version="*", features=["ndarray", "strings"]}
 pyo3= {version="*", features=["auto-initialize"]}
 ndarray = "*"
+smartcore = "*"

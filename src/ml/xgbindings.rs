@@ -7,6 +7,8 @@ use polars::{
 use pyo3::types::PyModule;
 use xgboost::{parameters, Booster, DMatrix};
 
+use crate::ml::data_processing;
+
 pub fn test_print() {
     println!("Hello, world!");
 }
@@ -18,48 +20,15 @@ pub enum Datasts {
 }
 
 pub fn run(set: Datasts) {
+
     // specify dataset parameters
     let (dataset, target_column, xg_classifier) = get_target_column(set);
 
     // use python to preprocess data
-    let gil = pyo3::Python::acquire_gil();
-    let py = gil.python();
-    let py_mod =
-        PyModule::from_code(py, include_str!("../test.py"), "filename.py", "modulename").unwrap();
-
-    let py_load_data = py_mod.getattr("load_data").unwrap();
-    py_load_data.call1((dataset,)).unwrap();
-
+    data_processing::run_through_python(dataset);
+    
     // read preprocessed data to rust
-
-    let x_train_frame: DataFrame =
-        CsvReader::from_path(format!("datasets/{dataset}/test_data_enc.csv"))
-            .unwrap()
-            .infer_schema(None)
-            .has_header(true)
-            .finish()
-            .unwrap();
-
-    let x_test_frame: DataFrame =
-        CsvReader::from_path(format!("datasets/{dataset}/test_data_enc.csv"))
-            .unwrap()
-            .infer_schema(None)
-            .has_header(true)
-            .finish()
-            .unwrap();
-
-    let y_train_frame =
-        DataFrame::new(vec![x_train_frame.column(target_column).unwrap().clone()]).unwrap();
-    let y_train_array = y_train_frame.to_ndarray::<Float32Type>().unwrap();
-    x_train_frame.drop(target_column).unwrap();
-
-    let y_test_frame =
-        DataFrame::new(vec![x_test_frame.column(target_column).unwrap().clone()]).unwrap();
-    let y_test_array = y_test_frame.to_ndarray::<Float32Type>().unwrap();
-    x_test_frame.drop(target_column).unwrap();
-
-    let x_train_array: Array<f32, _> = x_train_frame.to_ndarray::<Float32Type>().unwrap();
-    let x_test_array: Array<f32, _> = x_test_frame.to_ndarray::<Float32Type>().unwrap();
+    let (x_train_array, x_test_array, y_train_array, y_test_array) = data_processing::get_data_matrix(dataset, target_column);
 
     let train_shape = x_train_array.raw_dim();
     let test_shape = x_test_array.raw_dim();
