@@ -1,3 +1,5 @@
+use ml::qs::QuickArgSort;
+
 mod ml;
 
 fn main() {
@@ -6,4 +8,6 @@ fn main() {
     // ml::xgbindings::run(ml::xgbindings::Datasts::Urban);
 
     ml::smrtcore::run(ml::smrtcore::Datasets::Titanic);
-}
+    // ml::smrtcore::run(ml::smrtcore::Datasets::Urban);
+
+    }

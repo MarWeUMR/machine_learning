@@ -590,6 +590,7 @@ name = "machine_learning"
 version = "0.1.0"
 dependencies = [
  "ndarray",
+ "num-traits",
  "polars",
  "pyo3",
  "smartcore",

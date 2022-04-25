@@ -11,6 +11,7 @@ def load_data(dataset):
     df_train = pd.read_csv(f'datasets/{dataset}/train_data.csv')
     df_test = pd.read_csv(f'datasets/{dataset}/test_data.csv')
 
+
     # get categorical columns
     categorical_columns = df_train.select_dtypes(include=['object']).columns
 

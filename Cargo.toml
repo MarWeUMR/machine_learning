@@ -7,7 +7,8 @@ edition = "2021"
 
 [dependencies]
 xgboost = "*"
-polars = {version="*", features=["ndarray", "strings"]}
+polars = {version="*", features=["ndarray", "strings", "rows"]}
 pyo3= {version="*", features=["auto-initialize"]}
 ndarray = "*"
-smartcore = "*"
+smartcore = {version = "*"} 
+num-traits = "*"
