@@ -53,8 +53,8 @@ pub fn get_data_matrix(
     let y_test_array = y_test_frame.to_ndarray::<Float32Type>().unwrap();
     x_test_frame.drop_in_place(target_column).unwrap();
 
-    let x_train_array: Array<f32, _> = x_train_frame.transpose().unwrap().to_ndarray::<Float32Type>().unwrap();
-    let x_test_array: Array<f32, _> = x_test_frame.transpose().unwrap().to_ndarray::<Float32Type>().unwrap();
+    let x_train_array: Array<f32, _> = x_train_frame.to_ndarray::<Float32Type>().unwrap();
+    let x_test_array: Array<f32, _> = x_test_frame.to_ndarray::<Float32Type>().unwrap();
 
     // println!("{:?}", x_train_frame);
     // println!("{:?}", x_train_frame.transpose());

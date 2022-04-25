@@ -24,35 +24,18 @@ pub fn run(set: Datasets) {
     let (x_train_array, x_test_array, y_train_array, y_test_array) =
         data_processing::get_data_matrix(dataset, target_column);
 
-    println!("{:?}", &x_train_array);
-
-    let x = DenseMatrix::from_array(
-        x_train_array.nrows(),
-        x_train_array.ncols(),
-        x_train_array.as_slice().unwrap(),
+    let z = x_train_array.clone().t().to_owned();
+    let x = DenseMatrix::from_vec(
+        z.ncols(),
+        z.nrows(),
+        &z.t().to_owned().into_raw_vec(),
     );
-
-let y = DenseMatrix::from_array(
-        y_train_array.nrows(),
-        y_train_array.ncols(),
-        y_train_array.as_slice().unwrap(),
-    );
-
-    
-
-
-    // let x = DenseMatrix::from_vec(
-    //     x_train_array.ncols(),
-    //     x_train_array.nrows(),
-    //     x_train_array.into_raw_vec().as_slice(),
-    // );
 
     println!("{:?}", &x);
+    println!("{:?}", &z);
 
     let y = y_train_array.into_raw_vec();
-
     let y_hat = get_predictions(dataset, x, y);
-    // println!("y_hat values: {:?}", y_hat);
 }
 
 fn get_target_column<'a>(set: Datasets) -> (&'a str, &'a str) {
