@@ -28,9 +28,7 @@ pub fn run(set: Datasts) {
     let num_rows_train = train_shape[0];
     let num_rows_test = test_shape[0];
 
-    println!("{:?}", train_shape);
-
-    let mut dtrain = DMatrix::from_dense(
+    let mut x_train = DMatrix::from_dense(
         x_train_array
             .into_shape(train_shape[0] * train_shape[1])
             .unwrap()
@@ -40,7 +38,7 @@ pub fn run(set: Datasts) {
     )
     .unwrap();
 
-    let mut dtest = DMatrix::from_dense(
+    let mut x_test = DMatrix::from_dense(
         x_test_array
             .into_shape(test_shape[0] * test_shape[1])
             .unwrap()
@@ -50,52 +48,58 @@ pub fn run(set: Datasts) {
     )
     .unwrap();
 
-    dtrain
+    x_train
         .set_labels(y_train_array.as_slice().unwrap())
         .unwrap();
 
-    dtest.set_labels(y_test_array.as_slice().unwrap()).unwrap();
+    x_test.set_labels(y_test_array.as_slice().unwrap()).unwrap();
 
     // optional
     // let evaluation_sets = &[(&dtrain, "train"), (&dtest, "test")];
 
     // RANDOM FOREST SETUP -----------------------------------
 
-    let rf_tree_params = parameters::tree::TreeBoosterParametersBuilder::default()
-        .subsample(0.8)
-        .max_depth(5)
-        .eta(1.0) // aka learning_rate
-        .colsample_bytree(0.8)
-        // .num_parallel_tree(100) // <- NOT AVAILABLE ?!
-        .tree_method(parameters::tree::TreeMethod::Hist)
-        .build()
-        .unwrap();
+    // let rf_tree_params = parameters::tree::TreeBoosterParametersBuilder::default()
+    //     .subsample(0.8)
+    //     .max_depth(5)
+    //     .eta(1.0) // aka learning_rate
+    //     .colsample_bytree(0.8)
+    //     // .num_parallel_tree(100) // <- NOT AVAILABLE ?!
+    //     .tree_method(parameters::tree::TreeMethod::Hist)
+    //     .build()
+    //     .unwrap();
+    //
+    // let rf_learning_params = LearningTaskParametersBuilder::default()
+    //     .objective(xg_classifier)
+    //     .build()
+    //     .unwrap();
+    //
+    // let rf_booster_params = BoosterParametersBuilder::default()
+    //     .booster_type(parameters::BoosterType::Tree(rf_tree_params))
+    //     .learning_params(rf_learning_params)
+    //     .build()
+    //     .unwrap();
+    //
+    // let rf_params = parameters::TrainingParametersBuilder::default()
+    //     .dtrain(&x_train)
+    //     .boost_rounds(1)
+    //     .booster_params(rf_booster_params)
+    //     .build()
+    //     .unwrap();
+    //
 
-    let rf_learning_params = LearningTaskParametersBuilder::default()
-        .objective(xg_classifier)
-        .build()
-        .unwrap();
-
-    let rf_booster_params = BoosterParametersBuilder::default()
-        .booster_type(parameters::BoosterType::Tree(rf_tree_params))
-        .learning_params(rf_learning_params)
-        .build()
-        .unwrap();
-
-    let rf_params = parameters::TrainingParametersBuilder::default()
-        .dtrain(&dtrain)
-        .boost_rounds(1)
-        .booster_params(rf_booster_params)
+    let params = parameters::TrainingParametersBuilder::default()
+        .dtrain(&x_train)
         .build()
         .unwrap();
 
     // train model, and print evaluation data
-    let bst = Booster::train(&rf_params).unwrap();
+    let bst = Booster::train(&params).unwrap();
 
-    println!("{:?}", bst.predict(&dtest).unwrap());
-    let preds = bst.predict(&dtest).unwrap();
+    // println!("{:?}", bst.predict(&dtest).unwrap());
+    let preds = bst.predict(&x_test).unwrap();
 
-    let labels = dtest.get_labels().unwrap();
+    let labels = x_test.get_labels().unwrap();
     println!(
         "First 3 predicted labels: {} {} {}",
         labels[0], labels[1], labels[2]
@@ -113,21 +117,30 @@ pub fn run(set: Datasts) {
 
 fn get_target_column<'a>(set: Datasts) -> (&'a str, &'a str, parameters::learning::Objective) {
     let result = match set {
-        Datasts::Titanic => (
-            "titanic",
-            "Survived",
-            parameters::learning::Objective::BinaryLogistic,
-        ),
-        Datasts::Urban => (
-            "urban",
-            "class",
-            parameters::learning::Objective::MultiSoftmax(10),
-        ),
-        Datasts::Landcover => (
-            "landcover",
-            "Class_ID",
-            parameters::learning::Objective::MultiSoftmax(10),
-        ),
+        Datasts::Titanic => {
+            println!("BinaryLogistic chosen");
+            (
+                "titanic",
+                "Survived",
+                parameters::learning::Objective::BinaryLogistic,
+            )
+        }
+        Datasts::Urban => {
+            println!("MultiSoftmax chosen");
+            (
+                "urban",
+                "class",
+                parameters::learning::Objective::MultiSoftmax(10),
+            )
+        }
+        Datasts::Landcover => {
+            println!("MultiSoftmax chosen");
+            (
+                "landcover",
+                "Class_ID",
+                parameters::learning::Objective::MultiSoftmax(10),
+            )
+        }
     };
     result
 }
