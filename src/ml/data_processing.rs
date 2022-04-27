@@ -2,7 +2,7 @@ use ndarray::Array;
 use polars::{
     datatypes::Float32Type,
     io::SerReader,
-    prelude::{CsvReader, DataFrame},
+    prelude::{CsvReader, DataFrame, NamedFrom, Series},
 };
 use pyo3::types::PyModule;
 
@@ -15,6 +15,15 @@ pub fn run_through_python(dataset: &str) {
 
     let py_load_data = py_mod.getattr("load_data").unwrap();
     py_load_data.call1((dataset,)).unwrap();
+}
+
+pub fn get_multiclass_label_count(
+    dataset: ndarray::ArrayBase<ndarray::OwnedRepr<f32>, ndarray::Dim<[usize; 2]>>,
+) -> u32 {
+    let target = polars::series::Series::new("target", dataset.as_slice().unwrap());
+
+    let count = target.n_unique().unwrap();
+    count as u32
 }
 
 pub fn get_data_matrix(

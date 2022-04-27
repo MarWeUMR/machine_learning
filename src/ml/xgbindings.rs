@@ -1,3 +1,5 @@
+use std::result;
+
 use xgboost::{
     parameters::{self, learning::LearningTaskParametersBuilder, BoosterParametersBuilder},
     Booster, DMatrix,
@@ -5,15 +7,19 @@ use xgboost::{
 
 use crate::ml::data_processing;
 
-pub enum Datasts {
+#[derive(Debug, Clone, Copy)]
+pub enum Datasets {
     Titanic,
     Landcover,
     Urban,
+    Boston,
+    Cancer,
 }
 
-pub fn run(set: Datasts) {
+pub fn run(set: Datasets) {
     // specify dataset parameters
-    let (dataset, target_column, xg_classifier) = get_target_column(set);
+
+    let (dataset, target_column) = get_name_and_target_column(set);
 
     // use python to preprocess data
     data_processing::run_through_python(dataset);
@@ -53,6 +59,8 @@ pub fn run(set: Datasts) {
         .unwrap();
 
     x_test.set_labels(y_test_array.as_slice().unwrap()).unwrap();
+
+    let xg_classifier = get_objective(set, y_train_array.clone());
 
     // optional
     // let evaluation_sets = &[(&dtrain, "train"), (&dtest, "test")];
@@ -96,7 +104,6 @@ pub fn run(set: Datasts) {
     // train model, and print evaluation data
     let bst = Booster::train(&params).unwrap();
 
-    // println!("{:?}", bst.predict(&dtest).unwrap());
     let preds = bst.predict(&x_test).unwrap();
 
     let labels = x_test.get_labels().unwrap();
@@ -115,31 +122,43 @@ pub fn run(set: Datasts) {
     );
 }
 
-fn get_target_column<'a>(set: Datasts) -> (&'a str, &'a str, parameters::learning::Objective) {
+fn get_name_and_target_column<'a>(set: Datasets) -> (&'a str, &'a str) {
     let result = match set {
-        Datasts::Titanic => {
+        Datasets::Titanic => ("titanic", "Survived"),
+        Datasets::Landcover => ("landcover", "Class_ID"),
+        Datasets::Urban => ("urban", "class"),
+        Datasets::Boston => ("boston", "MEDV"),
+        Datasets::Cancer => ("cancer", "target"),
+    };
+    result
+}
+
+fn get_objective<'a>(
+    set: Datasets,
+    y_train: ndarray::ArrayBase<ndarray::OwnedRepr<f32>, ndarray::Dim<[usize; 2]>>,
+) -> parameters::learning::Objective {
+    let n_unique = data_processing::get_multiclass_label_count(y_train.clone());
+
+    let result = match set {
+        Datasets::Titanic => {
             println!("BinaryLogistic chosen");
-            (
-                "titanic",
-                "Survived",
-                parameters::learning::Objective::BinaryLogistic,
-            )
+            parameters::learning::Objective::BinaryLogistic
         }
-        Datasts::Urban => {
+        Datasets::Urban => {
             println!("MultiSoftmax chosen");
-            (
-                "urban",
-                "class",
-                parameters::learning::Objective::MultiSoftmax(10),
-            )
+            parameters::learning::Objective::MultiSoftmax(n_unique)
         }
-        Datasts::Landcover => {
+        Datasets::Landcover => {
             println!("MultiSoftmax chosen");
-            (
-                "landcover",
-                "Class_ID",
-                parameters::learning::Objective::MultiSoftmax(10),
-            )
+            parameters::learning::Objective::MultiSoftmax(n_unique)
+        }
+        Datasets::Boston => {
+            println!("LinReg chosen");
+            parameters::learning::Objective::RegLinear
+        }
+        Datasets::Cancer => {
+            println!("BinaryLogistic chosen");
+            parameters::learning::Objective::BinaryLogistic
         }
     };
     result

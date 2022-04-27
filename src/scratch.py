@@ -1,16 +1,11 @@
 import pandas as pd
+from sklearn.datasets import load_breast_cancer
 
-dataset = "landcover"
+boston_dataset = load_breast_cancer()
 
-df_train = pd.read_csv('datasets/{}/train_data.csv'.format(dataset))
-df_test = pd.read_csv('datasets/{}/test_data.csv'.format(dataset))
+boston = pd.DataFrame(boston_dataset.data, columns=boston_dataset.feature_names)
+boston["target"] = boston_dataset.target
 
-df_train.drop(columns=['Landuse'], inplace=True)
-df_test.drop(columns=['Landuse'], inplace=True)
+print(boston)
 
-
-df_train.to_csv('datasets/{}/train_data.csv'.format(dataset), index=False)
-df_test.to_csv('datasets/{}/test_data.csv'.format(dataset), index=False)
-
-
-print(df_test)
+boston.to_csv(f"datasets/cancer/data.csv", index=False)
