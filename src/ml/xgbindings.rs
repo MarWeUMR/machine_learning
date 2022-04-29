@@ -54,6 +54,7 @@ pub fn run(set: Datasets) {
     )
     .unwrap();
 
+
     x_train
         .set_labels(y_train_array.as_slice().unwrap())
         .unwrap();

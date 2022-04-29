@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use ndarray::Array;
 use polars::{
     datatypes::Float32Type,
@@ -5,6 +7,7 @@ use polars::{
     prelude::{CsvReader, DataFrame, NamedFrom, Series},
 };
 use pyo3::types::PyModule;
+use tangram_table::Table;
 
 pub fn run_through_python(dataset: &str) {
     // use python to preprocess data
@@ -24,6 +27,24 @@ pub fn get_multiclass_label_count(
 
     let count = target.n_unique().unwrap();
     count as u32
+}
+
+pub fn get_tangram_matrix(dataset: &str, target_column_idx: usize) -> (Table, Table, tangram_table::TableColumn, tangram_table::TableColumn) {
+    let train_path = &format!("datasets/{dataset}/train_data_enc.csv");
+    let test_path = &format!("datasets/{dataset}/test_data_enc.csv");
+    let csv_file_path_train = Path::new(train_path);
+    let csv_file_path_test = Path::new(test_path);
+
+    let mut x_train =
+        Table::from_path(csv_file_path_train, Default::default(), &mut |_| {}).unwrap();
+    let mut x_test = Table::from_path(csv_file_path_test, Default::default(), &mut |_| {}).unwrap();
+
+    let y_train = x_train.columns_mut().remove(target_column_idx);
+    let y_test = x_test.columns_mut().remove(target_column_idx);
+    let y_train_num = y_train.as_number().unwrap();
+    let y_test_num = y_test.as_number().unwrap();
+
+    (x_train, x_test, y_train, y_test)
 }
 
 pub fn get_data_matrix(

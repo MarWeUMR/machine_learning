@@ -4,31 +4,31 @@ fn main() {
     println!("==========================");
     println!("XG with Landcover");
     println!("==========================\n");
-    ml::xgbindings::run(ml::xgbindings::Datasets::Landcover);
+    // ml::xgbindings::run(ml::xgbindings::Datasets::Landcover);
     println!("--------------------------\n\n");
 
     println!("==========================");
     println!("XG with Titanic");
     println!("==========================\n");
-    ml::xgbindings::run(ml::xgbindings::Datasets::Titanic);
+    // ml::xgbindings::run(ml::xgbindings::Datasets::Titanic);
     println!("--------------------------\n\n");
 
     println!("==========================");
     println!("XG with Urban");
     println!("==========================\n");
-    ml::xgbindings::run(ml::xgbindings::Datasets::Urban);
+    // ml::xgbindings::run(ml::xgbindings::Datasets::Urban);
     println!("--------------------------\n\n");
 
     println!("==========================");
     println!("XG with Boston");
     println!("==========================\n");
-    ml::xgbindings::run(ml::xgbindings::Datasets::Boston);
+    // ml::xgbindings::run(ml::xgbindings::Datasets::Boston);
     println!("--------------------------\n\n");
 
     println!("==========================");
     println!("XG with Cancer");
     println!("==========================\n");
-    ml::xgbindings::run(ml::xgbindings::Datasets::Cancer);
+    // ml::xgbindings::run(ml::xgbindings::Datasets::Cancer);
     println!("--------------------------\n\n");
 
 
@@ -43,7 +43,7 @@ fn main() {
     println!("==========================");
     println!("SMARTCORE with Urban");
     println!("==========================\n");
-    ml::smrtcore::run(ml::smrtcore::Datasets::Urban);
+    // ml::smrtcore::run(ml::smrtcore::Datasets::Urban);
     println!("--------------------------\n\n");
 
     println!("==========================");
@@ -64,4 +64,7 @@ fn main() {
     println!("==========================\n");
     // ml::smrtcore::run(ml::smrtcore::Datasets::Cancer);
     println!("--------------------------\n\n");
+
+    println!("TANGRAM");
+    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Boston);
 }
