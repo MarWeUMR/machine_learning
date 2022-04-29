@@ -18,7 +18,6 @@ pub enum Datasets {
 }
 
 pub fn run(set: Datasets) {
-    
     let (dataset, target_column_idx) = get_dataset_info(set);
 
     // use python to preprocess data
@@ -68,11 +67,11 @@ pub fn run(set: Datasets) {
 
 fn get_dataset_info<'a>(set: Datasets) -> (&'a str, usize) {
     let result = match set {
-        Datasets::Titanic => ("titanic", 2),
-        Datasets::Urban => ("urban", 10),
-        Datasets::Landcover => ("landcover", 10),
+        Datasets::Titanic => ("titanic", 10),
+        Datasets::Urban => ("urban", 0),
+        Datasets::Landcover => ("landcover", 12),
         Datasets::Boston => ("boston", 13),
-        Datasets::Cancer => ("cancer", 10),
+        Datasets::Cancer => ("cancer", 29),
     };
     result
 }
