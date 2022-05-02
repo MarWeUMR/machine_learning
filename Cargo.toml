@@ -9,9 +9,12 @@ edition = "2021"
 tangram = {git = "https://github.com/tangramdotdev/tangram/", rev = "6bb3300e411e268f7be9f25d1c5e6811abae950f"}
 tangram_table = "*"
 tangram_tree = "*"
+tangram_zip = "*"
 tangram_kill_chip = "*"
 tangram_metrics = "*"
-xgboost = "*"
+# xgboost = "*"
+# xgboost-bindings = {path = "xgtest"}
+xgboost-bindings = {git = "https://github.com/MarWeUMR/xgboost-bindings"}
 polars = {version="*", features=["ndarray", "strings", "rows"]}
 pyo3= {version="*", features=["auto-initialize"]}
 ndarray = "*"

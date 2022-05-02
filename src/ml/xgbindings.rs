@@ -1,6 +1,6 @@
 use std::result;
 
-use xgboost::{
+use xgboost_bindings::{
     parameters::{self, learning::LearningTaskParametersBuilder, BoosterParametersBuilder},
     Booster, DMatrix,
 };
@@ -125,7 +125,7 @@ pub fn run(set: Datasets) {
 
 fn get_name_and_target_column<'a>(set: Datasets) -> (&'a str, &'a str) {
     let result = match set {
-        Datasets::Titanic => ("titanic", "Survived"),
+        Datasets::Titanic => ("titanic", "target"),
         Datasets::Landcover => ("landcover", "Class_ID"),
         Datasets::Urban => ("urban", "class"),
         Datasets::Boston => ("boston", "MEDV"),
