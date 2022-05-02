@@ -68,7 +68,7 @@ fn main() {
     println!("TANGRAM");
     // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Boston);
     // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Cancer);
-    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Landcover);
+    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Landcover);
+    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Urban);
     // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Titanic);
-    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Titanic);
 }

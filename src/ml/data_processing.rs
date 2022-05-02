@@ -42,8 +42,6 @@ pub fn get_tangram_matrix(dataset: &str, target_column_idx: usize) -> (Table, Ta
     let y_train = x_train.columns_mut().remove(target_column_idx);
     let y_test = x_test.columns_mut().remove(target_column_idx);
 
-    // let y_train_num = y_train.as_number().unwrap();
-    // let y_test_num = y_test.as_number().unwrap();
 
     (x_train, x_test, y_train, y_test)
 }

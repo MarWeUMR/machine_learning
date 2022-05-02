@@ -310,9 +310,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.1.13"
+version = "3.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4b3ee449efa0c4f95cd48b00539829d3655a98e189a90617246492788d22404"
+checksum = "535434c063ced786eb04aaf529308092c5ab60889e8fe24275d15de07b01fa97"
 dependencies = [
  "atty",
  "bitflags",
@@ -1915,18 +1915,18 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.136"
+version = "1.0.137"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce31e24b01e1e524df96f1c2fdd054405f8d7376249a5110886fb4b658484789"
+checksum = "61ea8d54c77f8315140a05f4c7237403bf38b72704d031543aa1d16abbf517d1"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.136"
+version = "1.0.137"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08597e7152fcd306f41838ed3e37be9eaeed2b61c42e2117266a554fab4662f9"
+checksum = "1f26faba0c3959972377d3b2d306ee9f71faee9714294e41bb777f83f88578be"
 dependencies = [
  "proc-macro2",
  "quote 1.0.18",
@@ -2249,7 +2249,7 @@ version = "0.7.0"
 source = "git+https://github.com/tangramdotdev/tangram/?rev=6bb3300e411e268f7be9f25d1c5e6811abae950f#6bb3300e411e268f7be9f25d1c5e6811abae950f"
 dependencies = [
  "buffalo 0.4.1",
- "clap 3.1.13",
+ "clap 3.1.14",
  "ndarray",
  "num 0.4.0",
  "rayon",
@@ -2370,7 +2370,7 @@ checksum = "3837768658fe11c7647707da0abcd4f75abf4579122e36755158d736d1f243ed"
 dependencies = [
  "bitvec 0.19.6",
  "buffalo 0.1.0",
- "clap 3.1.13",
+ "clap 3.1.14",
  "itertools",
  "maplit",
  "ndarray",
@@ -2393,7 +2393,7 @@ source = "git+https://github.com/tangramdotdev/tangram/?rev=6bb3300e411e268f7be9
 dependencies = [
  "bitvec 1.0.0",
  "buffalo 0.4.1",
- "clap 3.1.13",
+ "clap 3.1.14",
  "itertools",
  "ndarray",
  "num 0.4.0",
@@ -2471,18 +2471,18 @@ checksum = "b1141d4d61095b28419e22cb0bbf02755f5e54e0526f97f1e3d1d160e60885fb"
 
 [[package]]
 name = "thiserror"
-version = "1.0.30"
+version = "1.0.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "854babe52e4df1653706b98fcfc05843010039b406875930a70e4d9644e5c417"
+checksum = "bd829fe32373d27f76265620b5309d0340cb8550f523c1dda251d6298069069a"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.30"
+version = "1.0.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aa32fd3f627f367fe16f893e2597ae3c05020f8bba2666a4e6ea73d377e5714b"
+checksum = "0396bc89e626244658bef819e22d0cc459e795a5ebe878e6ec336d1674a8d79a"
 dependencies = [
  "proc-macro2",
  "quote 1.0.18",
@@ -2911,7 +2911,7 @@ dependencies = [
 [[package]]
 name = "xgboost-bib"
 version = "0.1.0"
-source = "git+https://github.com/MarWeUMR/xgboost-bib#cea7a6199bc5e03950d2678931873b75fd86a6b3"
+source = "git+https://github.com/MarWeUMR/xgboost-bib#92c89f6aafe354a2494202dd550543e48c126c60"
 dependencies = [
  "bindgen",
  "libc",
@@ -2920,7 +2920,7 @@ dependencies = [
 [[package]]
 name = "xgboost-bindings"
 version = "0.1.0"
-source = "git+https://github.com/MarWeUMR/xgboost-bindings#dd147026298573abe8031f8c3675e5202bcc3a6b"
+source = "git+https://github.com/MarWeUMR/xgboost-bindings#89681885026a24796c4eab7601c5b9072475a2c7"
 dependencies = [
  "derive_builder",
  "indexmap",
