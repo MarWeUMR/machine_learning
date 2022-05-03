@@ -30,8 +30,8 @@ pub fn get_multiclass_label_count(
 }
 
 pub fn get_tangram_matrix(dataset: &str, target_column_idx: usize) -> (Table, Table, tangram_table::TableColumn, tangram_table::TableColumn) {
-    let train_path = &format!("datasets/{dataset}/train_data_enc.csv");
-    let test_path = &format!("datasets/{dataset}/test_data_enc.csv");
+    let train_path = &format!("datasets/{dataset}/train_data.csv");
+    let test_path = &format!("datasets/{dataset}/test_data.csv");
     let csv_file_path_train = Path::new(train_path);
     let csv_file_path_test = Path::new(test_path);
 

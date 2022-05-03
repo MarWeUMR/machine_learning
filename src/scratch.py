@@ -8,11 +8,11 @@ from sklearn.model_selection import (
 )
 
 
-# X = fetch_openml("titanic", version=1, as_frame=True, return_X_y=False)
-X = fetch_openml("titanic", version=1, as_frame=True)
+# (X, y) = fetch_openml("iris", version=1, as_frame=True, return_X_y=True)
+X = fetch_openml("iris", version=1, as_frame=True)
 
 df = pd.DataFrame(data=X.data, columns=X.feature_names)
-
+# df = pd.read_csv("datasets/urban/test_data.csv")
 df["target"] = X.target
 
 # X.drop(["boat", "body", "home.dest"], axis=1, inplace=True)
@@ -25,5 +25,5 @@ df["target"] = X.target
 
 print(df)
 
-df.to_csv(f"datasets/titanic/data.csv", index=False, sep=",", header=True)
-df.to_csv(f"datasets/titanic/data_xg.csv", index=False, sep=" ", header=False)
+df.to_csv(f"datasets/iris/data.csv", index=False, sep=",", header=True)
+df.to_csv(f"datasets/iris/data_xg.csv", index=False, sep=" ", header=False)

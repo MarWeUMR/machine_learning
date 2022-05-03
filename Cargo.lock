@@ -23,7 +23,7 @@ version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fcb51a0695d8f838b1ee009b3fbf66bda078cd64590202a864a8f3e8c4315c47"
 dependencies = [
- "getrandom 0.2.6",
+ "getrandom",
  "once_cell",
  "version_check",
 ]
@@ -57,9 +57,9 @@ dependencies = [
 
 [[package]]
 name = "arrow2"
-version = "0.11.1"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "35994323132313169feb0bfac20a5f30dedeaebf238d10589eb676fbed3be0f2"
+checksum = "2e387b20dd573a96f36b173d9027483898f944d696521afd74e2caa3c813d86e"
 dependencies = [
  "bytemuck",
  "chrono",
@@ -187,7 +187,7 @@ dependencies = [
  "buffalo_macro",
  "derive_deref",
  "ndarray",
- "num 0.4.0",
+ "num",
 ]
 
 [[package]]
@@ -200,7 +200,7 @@ dependencies = [
  "buffalo_macro",
  "derive_deref",
  "ndarray",
- "num 0.4.0",
+ "num",
 ]
 
 [[package]]
@@ -310,9 +310,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.1.14"
+version = "3.1.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "535434c063ced786eb04aaf529308092c5ab60889e8fe24275d15de07b01fa97"
+checksum = "85a35a599b11c089a7f49105658d089b8f2cf0882993c17daf6de15285c2c35d"
 dependencies = [
  "atty",
  "bitflags",
@@ -624,17 +624,6 @@ dependencies = [
 
 [[package]]
 name = "getrandom"
-version = "0.1.16"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fc3cb4d91f53b50155bdcfd23f6a4c39ae1969c2ae85982b135750cccaf5fce"
-dependencies = [
- "cfg-if",
- "libc",
- "wasi 0.9.0+wasi-snapshot-preview1",
-]
-
-[[package]]
-name = "getrandom"
 version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9be70c98951c83b8d2f8f60d7065fa6d5146873094452a1008da8c2f1e4205ad"
@@ -691,9 +680,9 @@ checksum = "ab5ef0d4909ef3724cc8cce6ccc8572c5c817592e9285f5464f8e86f8bd3726e"
 
 [[package]]
 name = "hashbrown"
-version = "0.12.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c21d40587b92fa6a6c6e3c1bdbf87d75511db5672f9c93175574b3a00df1758"
+checksum = "db0d4cf898abf0081f964436dc980e96670a0f36863e4b83aaacdb65c9d7ccc3"
 dependencies = [
  "ahash",
  "rayon",
@@ -978,12 +967,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "libm"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33a33a362ce288760ec6a508b94caaec573ae7d3bbbd91b87aa0bad4456839db"
-
-[[package]]
 name = "linked-hash-map"
 version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1001,9 +984,9 @@ dependencies = [
 
 [[package]]
 name = "log"
-version = "0.4.16"
+version = "0.4.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6389c490849ff5bc16be905ae24bc913a9c8892e19b2341dbc175e14c341c2b8"
+checksum = "abb12e687cfb44aa40f41fc3978ef76448f9b6038cad6aef4259d3c095a2382e"
 dependencies = [
  "cfg-if",
 ]
@@ -1018,7 +1001,6 @@ dependencies = [
  "pyo3",
  "serde",
  "serde_json",
- "smartcore",
  "tangram",
  "tangram_kill_chip 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "tangram_metrics 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1154,7 +1136,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dec23e6762830658d2b3d385a75aa212af2f67a4586d4442907144f3bb6a1ca8"
 dependencies = [
  "matrixmultiply",
- "num-complex 0.4.1",
+ "num-complex",
  "num-integer",
  "num-traits",
  "rawpointer",
@@ -1182,40 +1164,15 @@ dependencies = [
 
 [[package]]
 name = "num"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b7a8e9be5e039e2ff869df49155f1c06bd01ade2117ec783e56ab0932b67a8f"
-dependencies = [
- "num-bigint 0.3.3",
- "num-complex 0.3.1",
- "num-integer",
- "num-iter",
- "num-rational 0.3.2",
- "num-traits",
-]
-
-[[package]]
-name = "num"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43db66d1170d347f9a065114077f7dccb00c1b9478c89384490a3425279a4606"
 dependencies = [
- "num-bigint 0.4.3",
- "num-complex 0.4.1",
+ "num-bigint",
+ "num-complex",
  "num-integer",
  "num-iter",
- "num-rational 0.4.0",
- "num-traits",
-]
-
-[[package]]
-name = "num-bigint"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f6f7833f2cbf2360a6cfd58cd41a53aa7a90bd4c202f5b1c7dd2ed73c57b2c3"
-dependencies = [
- "autocfg",
- "num-integer",
+ "num-rational",
  "num-traits",
 ]
 
@@ -1227,15 +1184,6 @@ checksum = "f93ab6289c7b344a8a9f60f88d80aa20032336fe78da341afc91c8a2341fc75f"
 dependencies = [
  "autocfg",
  "num-integer",
- "num-traits",
-]
-
-[[package]]
-name = "num-complex"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "747d632c0c558b87dbabbe6a82f3b4ae03720d0646ac5b7b4dae89394be5f2c5"
-dependencies = [
  "num-traits",
 ]
 
@@ -1271,36 +1219,23 @@ dependencies = [
 
 [[package]]
 name = "num-rational"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12ac428b1cb17fce6f731001d307d351ec70a6d202fc2e60f7d4c5e42d8f4f07"
-dependencies = [
- "autocfg",
- "num-bigint 0.3.3",
- "num-integer",
- "num-traits",
-]
-
-[[package]]
-name = "num-rational"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d41702bd167c2df5520b384281bc111a4b5efcf7fbc4c9c222c815b07e0a6a6a"
 dependencies = [
  "autocfg",
- "num-bigint 0.4.3",
+ "num-bigint",
  "num-integer",
  "num-traits",
 ]
 
 [[package]]
 name = "num-traits"
-version = "0.2.14"
+version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a64b1ec5cda2586e284722486d802acf1f7dbdc623e2bfc57e65ca1cd099290"
+checksum = "578ede34cf02f8924ab9447f50c28075b4d3e5b269972345e7e0372b38c6cdcd"
 dependencies = [
  "autocfg",
- "libm",
 ]
 
 [[package]]
@@ -1383,47 +1318,46 @@ checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
 name = "polars"
-version = "0.21.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "453390a0807a6598a52c3fe77681d44c4c310785fbf45b981a9ac623d150ec63"
+checksum = "656db3b86c338a8a717476eb29436a380ebdf74915a71cff6ecce78d52173e53"
 dependencies = [
  "polars-core",
  "polars-io",
  "polars-lazy",
- "polars-ops",
  "polars-time",
 ]
 
 [[package]]
 name = "polars-arrow"
-version = "0.21.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd9c126b3d781782cfb1e55a9bd04a35c2475aaf9ee87b4d17a7112d54fe8eee"
+checksum = "fcedf44a7b15b60c69e811c9d343ac459788e961dc4136f002ed1b68a1fada07"
 dependencies = [
  "arrow2",
- "hashbrown 0.12.0",
- "num 0.4.0",
+ "hashbrown 0.12.1",
+ "num",
  "thiserror",
 ]
 
 [[package]]
 name = "polars-core"
-version = "0.21.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9608bfca72d82e28e655b44f6bfb9dc7d8c862aeaaa4e1ec1bd0683bb1dde88"
+checksum = "6dfed0e21ac4d4c85df45b5864a68cfc5b2a97e9fba8a981be7b09c6f02a7eaa"
 dependencies = [
  "ahash",
  "anyhow",
  "arrow2",
  "chrono",
  "comfy-table",
- "hashbrown 0.12.0",
+ "hashbrown 0.12.1",
  "indexmap",
  "lazy_static",
  "ndarray",
- "num 0.4.0",
+ "num",
+ "num_cpus",
  "polars-arrow",
- "polars-utils",
  "rayon",
  "regex",
  "thiserror",
@@ -1431,9 +1365,9 @@ dependencies = [
 
 [[package]]
 name = "polars-io"
-version = "0.21.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "55fc7edff0501e6dfbd7c4f609d59fff73ef7d14ac770c1cc4d4f551dcc12598"
+checksum = "d8770fb4233ab88affac80c410be090dc7a2c044a9e4e7b942132e94ceeb732b"
 dependencies = [
  "ahash",
  "anyhow",
@@ -1444,11 +1378,10 @@ dependencies = [
  "lexical",
  "memchr",
  "memmap2",
- "num 0.4.0",
+ "num",
+ "num_cpus",
  "polars-arrow",
  "polars-core",
- "polars-time",
- "polars-utils",
  "rayon",
  "regex",
  "simdutf8",
@@ -1456,9 +1389,9 @@ dependencies = [
 
 [[package]]
 name = "polars-lazy"
-version = "0.21.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2a2b0bd3bf0670ceddb9521c994978fd27404d18d5236b74df417741ff6363f9"
+checksum = "4eca1fed3b88ae1bb9b7f1d7b2958f1655d9c1aed33495d6ba30ff84a0c1e9e9"
 dependencies = [
  "ahash",
  "glob",
@@ -1472,31 +1405,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "polars-ops"
-version = "0.21.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9579a3283899983501a1d1ce8c6cefd92660faa61ebb94015be1888fab56951"
-dependencies = [
- "polars-core",
-]
-
-[[package]]
 name = "polars-time"
-version = "0.21.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "844065ad47e102fcc1e6fc4685b6142e473525965d5fcc9796380c6061f6e79b"
+checksum = "0fe48c759ca778a8b6fb30f70e9a81b56f0987a82dc71e61c5b2d3c236b6b8d6"
 dependencies = [
  "chrono",
- "lexical",
  "polars-arrow",
  "polars-core",
 ]
 
 [[package]]
 name = "polars-utils"
-version = "0.21.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d0400f8d27496b8e966d56f32eb4cb44ee4b2ab067170abd41d1d8edc7811fc"
+checksum = "71011e8ed52f123ce23d110b496c8704d0a59c5fd4115cd938e7ff19d4bcb7ca"
 dependencies = [
  "parking_lot",
  "rayon",
@@ -1538,7 +1461,7 @@ version = "1.0.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec757218438d5fda206afc041538b2f6d889286160d649a86a24d37e1235afd1"
 dependencies = [
- "unicode-xid 0.2.2",
+ "unicode-xid 0.2.3",
 ]
 
 [[package]]
@@ -1629,36 +1552,13 @@ checksum = "dc33ff2d4973d518d823d61aa239014831e521c75da58e3df4840d3f47749d09"
 
 [[package]]
 name = "rand"
-version = "0.7.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a6b1679d49b24bbfe0c803429aa1874472f50d9b363131f0e89fc356b544d03"
-dependencies = [
- "getrandom 0.1.16",
- "libc",
- "rand_chacha 0.2.2",
- "rand_core 0.5.1",
- "rand_hc",
-]
-
-[[package]]
-name = "rand"
 version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "34af8d1a0e25924bc5b7c43c079c942339d8f0a8b57c39049bef581b46327404"
 dependencies = [
  "libc",
- "rand_chacha 0.3.1",
- "rand_core 0.6.3",
-]
-
-[[package]]
-name = "rand_chacha"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4c8ed856279c9737206bf725bf36935d8666ead7aa69b52be55af369d193402"
-dependencies = [
- "ppv-lite86",
- "rand_core 0.5.1",
+ "rand_chacha",
+ "rand_core",
 ]
 
 [[package]]
@@ -1668,16 +1568,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6c10a63a0fa32252be49d21e7709d4d4baf8d231c2dbce1eaa8141b9b127d88"
 dependencies = [
  "ppv-lite86",
- "rand_core 0.6.3",
-]
-
-[[package]]
-name = "rand_core"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "90bde5296fc891b0cef12a6d03ddccc162ce7b2aff54160af9338f8d40df6d19"
-dependencies = [
- "getrandom 0.1.16",
+ "rand_core",
 ]
 
 [[package]]
@@ -1686,26 +1577,7 @@ version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d34f1408f55294453790c48b2f1ebbb1c5b4b7563eb1f418bcfcfdbb06ebb4e7"
 dependencies = [
- "getrandom 0.2.6",
-]
-
-[[package]]
-name = "rand_distr"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9e9532ada3929fb8b2e9dbe28d1e06c9b2cc65813f074fcb6bd5fbefeff9d56"
-dependencies = [
- "num-traits",
- "rand 0.7.3",
-]
-
-[[package]]
-name = "rand_hc"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca3129af7b92a17112d59ad498c6f81eaf463253766b90396d39ea7a39d6613c"
-dependencies = [
- "rand_core 0.5.1",
+ "getrandom",
 ]
 
 [[package]]
@@ -1714,7 +1586,7 @@ version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6f97cdb2a36ed4183de61b2f824cc45c9f1037f28afe0a322e9fff4c108b5aaa"
 dependencies = [
- "rand_core 0.6.3",
+ "rand_core",
 ]
 
 [[package]]
@@ -1762,7 +1634,7 @@ version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b033d837a7cf162d7993aded9304e30a83213c648b6e389db233191f891e5c2b"
 dependencies = [
- "getrandom 0.2.6",
+ "getrandom",
  "redox_syscall",
  "thiserror",
 ]
@@ -2023,20 +1895,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2dd574626839106c320a323308629dcb1acfc96e32a8cba364ddc61ac23ee83"
 
 [[package]]
-name = "smartcore"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4473b714a9bc8c1baf0fc4b75baf6fbde09532ee52b3709a5d45d7300066f953"
-dependencies = [
- "num 0.3.1",
- "num-traits",
- "rand 0.7.3",
- "rand_distr",
- "serde",
- "serde_derive",
-]
-
-[[package]]
 name = "socket2"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2120,7 +1978,7 @@ checksum = "7ff7c592601f11445996a06f8ad0c27f094a58857c2f89e97974ab9235b92c52"
 dependencies = [
  "proc-macro2",
  "quote 1.0.18",
- "unicode-xid 0.2.2",
+ "unicode-xid 0.2.3",
 ]
 
 [[package]]
@@ -2161,12 +2019,12 @@ dependencies = [
  "csv",
  "fast-float",
  "fnv",
- "getrandom 0.2.6",
+ "getrandom",
  "indexmap",
  "itertools",
  "ndarray",
- "num 0.4.0",
- "rand 0.8.5",
+ "num",
+ "rand",
  "rand_xoshiro",
  "rayon",
  "serde",
@@ -2196,7 +2054,7 @@ dependencies = [
  "indexmap",
  "itertools",
  "ndarray",
- "num 0.4.0",
+ "num",
  "serde",
  "tangram_metrics 0.7.0 (git+https://github.com/tangramdotdev/tangram/?rev=6bb3300e411e268f7be9f25d1c5e6811abae950f)",
  "tangram_table 0.7.0 (git+https://github.com/tangramdotdev/tangram/?rev=6bb3300e411e268f7be9f25d1c5e6811abae950f)",
@@ -2210,7 +2068,7 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b168c73e3af7855ea9ef5bddb7dca0e9307cb9907fe366efed832eb4beb43654"
 dependencies = [
- "num 0.4.0",
+ "num",
  "serde",
 ]
 
@@ -2219,7 +2077,7 @@ name = "tangram_finite"
 version = "0.7.0"
 source = "git+https://github.com/tangramdotdev/tangram/?rev=6bb3300e411e268f7be9f25d1c5e6811abae950f#6bb3300e411e268f7be9f25d1c5e6811abae950f"
 dependencies = [
- "num 0.4.0",
+ "num",
  "serde",
 ]
 
@@ -2228,7 +2086,7 @@ name = "tangram_id"
 version = "0.7.0"
 source = "git+https://github.com/tangramdotdev/tangram/?rev=6bb3300e411e268f7be9f25d1c5e6811abae950f#6bb3300e411e268f7be9f25d1c5e6811abae950f"
 dependencies = [
- "rand 0.8.5",
+ "rand",
  "serde",
 ]
 
@@ -2249,9 +2107,9 @@ version = "0.7.0"
 source = "git+https://github.com/tangramdotdev/tangram/?rev=6bb3300e411e268f7be9f25d1c5e6811abae950f#6bb3300e411e268f7be9f25d1c5e6811abae950f"
 dependencies = [
  "buffalo 0.4.1",
- "clap 3.1.14",
+ "clap 3.1.15",
  "ndarray",
- "num 0.4.0",
+ "num",
  "rayon",
  "serde",
  "serde_json",
@@ -2281,7 +2139,7 @@ checksum = "64ec903464554e1f93149b5ca2d314952a0d481c7e6e76ec627ac2abd38a5c08"
 dependencies = [
  "itertools",
  "ndarray",
- "num 0.4.0",
+ "num",
  "tangram_zip 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -2292,7 +2150,7 @@ source = "git+https://github.com/tangramdotdev/tangram/?rev=6bb3300e411e268f7be9
 dependencies = [
  "itertools",
  "ndarray",
- "num 0.4.0",
+ "num",
  "tangram_zip 0.7.0 (git+https://github.com/tangramdotdev/tangram/?rev=6bb3300e411e268f7be9f25d1c5e6811abae950f)",
 ]
 
@@ -2304,7 +2162,7 @@ dependencies = [
  "anyhow",
  "buffalo 0.4.1",
  "fnv",
- "num 0.4.0",
+ "num",
  "tangram_linear",
  "tangram_text",
  "tangram_tree 0.7.0 (git+https://github.com/tangramdotdev/tangram/?rev=6bb3300e411e268f7be9f25d1c5e6811abae950f)",
@@ -2332,7 +2190,7 @@ dependencies = [
  "fast-float",
  "fnv",
  "ndarray",
- "num 0.4.0",
+ "num",
  "tangram_progress_counter 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "tangram_zip 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -2347,7 +2205,7 @@ dependencies = [
  "fast-float",
  "fnv",
  "ndarray",
- "num 0.4.0",
+ "num",
  "tangram_progress_counter 0.7.0 (git+https://github.com/tangramdotdev/tangram/?rev=6bb3300e411e268f7be9f25d1c5e6811abae950f)",
  "tangram_zip 0.7.0 (git+https://github.com/tangramdotdev/tangram/?rev=6bb3300e411e268f7be9f25d1c5e6811abae950f)",
 ]
@@ -2370,11 +2228,11 @@ checksum = "3837768658fe11c7647707da0abcd4f75abf4579122e36755158d736d1f243ed"
 dependencies = [
  "bitvec 0.19.6",
  "buffalo 0.1.0",
- "clap 3.1.14",
+ "clap 3.1.15",
  "itertools",
  "maplit",
  "ndarray",
- "num 0.4.0",
+ "num",
  "rayon",
  "serde",
  "serde_json",
@@ -2393,10 +2251,10 @@ source = "git+https://github.com/tangramdotdev/tangram/?rev=6bb3300e411e268f7be9
 dependencies = [
  "bitvec 1.0.0",
  "buffalo 0.4.1",
- "clap 3.1.14",
+ "clap 3.1.15",
  "itertools",
  "ndarray",
- "num 0.4.0",
+ "num",
  "rayon",
  "serde",
  "serde_json",
@@ -2516,9 +2374,9 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tokio"
-version = "1.18.0"
+version = "1.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f48b6d60512a392e34dbf7fd456249fd2de3c83669ab642e021903f4015185b"
+checksum = "dce653fb475565de9f6fb0614b28bca8df2c430c0cf84bcd9c843f15de5414cc"
 dependencies = [
  "bytes",
  "libc",
@@ -2635,9 +2493,9 @@ checksum = "8c1f860d7d29cf02cb2f3f359fd35991af3d30bac52c57d265a3c461074cb4dc"
 
 [[package]]
 name = "unicode-xid"
-version = "0.2.2"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ccb82d61f80a663efe1f787a51b16b5a51e3314d6ac365b08639f52387b33f3"
+checksum = "957e51f3646910546462e67d5f7599b9e4fb8acdd304b087a6494730f9eebf04"
 
 [[package]]
 name = "unindent"
@@ -2685,12 +2543,6 @@ dependencies = [
  "log",
  "try-lock",
 ]
-
-[[package]]
-name = "wasi"
-version = "0.9.0+wasi-snapshot-preview1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cccddf32554fecc6acb585f82a32a72e28b48f8c4c1883ddfeeeaa96f7d8e519"
 
 [[package]]
 name = "wasi"

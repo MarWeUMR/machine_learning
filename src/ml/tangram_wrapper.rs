@@ -16,7 +16,7 @@ use tangram_zip::zip;
 pub enum ModelType {
     Numeric,
     Binary,
-    MultiClass,
+    Multiclass,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -26,10 +26,13 @@ pub enum Datasets {
     Urban,
     Boston,
     Cancer,
+    Iris,
 }
 
 pub fn run(set: Datasets) {
     let (dataset, target_column_idx, model_type) = get_dataset_info(set);
+
+    println!("Working on dataset: {}", dataset);
 
     // use python to preprocess data
     data_processing::run_through_python(dataset);
@@ -60,24 +63,48 @@ pub fn run(set: Datasets) {
     // Make predictions on the test data.
     // --------------------------
     // ....
-    let mut predictions = Array::zeros(y_test.len());
-    tangram_predict(model_type, x_test, train_output, &mut predictions);
+
+    // specify the number of outcome values if its a multiclass type of model
+    let num_of_unique_target_values;
+    if let ModelType::Multiclass = model_type {
+        num_of_unique_target_values = y_test.as_enum().unwrap().variants().len();
+    } else {
+        num_of_unique_target_values = 0;
+    }
+
+    // because multiclass tangram prediction needs a multidimensional array,
+    // the 1d array size needs to be set accordingly
+    let arr_size = match model_type {
+        ModelType::Numeric => y_test.len(),
+        ModelType::Binary => y_test.len(),
+        ModelType::Multiclass => y_test.len() * num_of_unique_target_values,
+    };
+
+    let mut predictions = Array::zeros(arr_size);
+    tangram_predict(
+        model_type,
+        x_test,
+        train_output,
+        &mut predictions,
+        num_of_unique_target_values,
+    );
 
     // -------------------------------------
     // Evaluate the model with the appropriate metrics
     // --------------------------
     // ....
 
-    tangram_evaluate(model_type, &mut predictions, y_test.clone());
+    tangram_evaluate(model_type, &mut predictions, &y_test);
 }
 
 fn get_dataset_info<'a>(set: Datasets) -> (&'a str, usize, ModelType) {
     let result = match set {
         Datasets::Titanic => ("titanic", 13, ModelType::Binary),
-        Datasets::Urban => ("urban", 0, ModelType::MultiClass),
-        Datasets::Landcover => ("landcover", 12, ModelType::MultiClass),
+        Datasets::Urban => ("urban", 0, ModelType::Multiclass),
+        Datasets::Landcover => ("landcover", 12, ModelType::Multiclass),
         Datasets::Boston => ("boston", 13, ModelType::Numeric),
         Datasets::Cancer => ("cancer", 30, ModelType::Binary),
+        Datasets::Iris => ("iris", 4, ModelType::Multiclass),
     };
     result
 }
@@ -162,6 +189,7 @@ fn tangram_predict(
     x_test: Table,
     train_output: Box<dyn TangramModel>,
     predictions: &mut ArrayBase<OwnedRepr<f32>, Dim<[usize; 1]>>,
+    num_of_unique_target_values: usize,
 ) {
     println!("Predicting test data...");
 
@@ -184,14 +212,28 @@ fn tangram_predict(
             x.model
                 .predict(x_test.to_rows().view(), predictions.view_mut());
         }
-        ModelType::MultiClass => todo!(),
+        ModelType::Multiclass => {
+            let mut arr = predictions
+                .clone()
+                .into_shape((x_test.nrows(), num_of_unique_target_values))
+                .unwrap();
+
+            let x = train_output
+                .as_any()
+                .downcast_ref::<MulticlassClassifierTrainOutput>()
+                .expect("Couldn't downcast to MulticlassClassifierTrainOutput");
+
+            x.model.predict(x_test.to_rows().view(), arr.view_mut());
+
+            *predictions = Array::from_iter(arr.into_iter());
+        }
     };
 }
 
 fn tangram_evaluate(
     model_type: ModelType,
     predictions: &mut ArrayBase<OwnedRepr<f32>, Dim<[usize; 1]>>,
-    y_test: TableColumn,
+    y_test: &TableColumn,
 ) {
     println!("Evaluating model...");
     match model_type {
@@ -220,7 +262,26 @@ fn tangram_evaluate(
 
             println!("{}", output);
         }
-        ModelType::MultiClass => todo!(),
+        ModelType::Multiclass => {
+                        
+            let arr = predictions
+                .clone()
+                .into_shape((y_test.len(), y_test.as_enum().unwrap().variants().len()))
+                .unwrap();
+
+            let mut metrics = tangram_metrics::MulticlassClassificationMetrics::new(y_test.as_enum().unwrap().variants().len());
+            metrics.update(tangram_metrics::MulticlassClassificationMetricsInput {
+                probabilities: arr.view(),
+                labels: y_test.as_enum().unwrap().view().as_slice().into(),
+            });
+            let metrics = metrics.finalize();
+
+            let output = json!({
+                "accuracy": metrics.accuracy,
+            });
+
+            println!("{}", output);
+        }
     };
 }
 
@@ -232,7 +293,7 @@ fn tangram_train_model(
     progress: Progress,
 ) -> Box<dyn TangramModel> {
     println!("Training model...");
-    println!("{:?}", y_train);
+
     match model_type {
         ModelType::Binary => {
             println!("returning BinaryClassifierTrainOutput");
@@ -245,6 +306,7 @@ fn tangram_train_model(
 
             Box::new(train_output)
         }
+
         ModelType::Numeric => {
             println!("returning RegressorTrainOutput");
             let train_output = tangram_tree::Regressor::train(
@@ -255,11 +317,13 @@ fn tangram_train_model(
             );
             Box::new(train_output)
         }
-        ModelType::MultiClass => {
+
+        ModelType::Multiclass => {
+            println!("returning MulticlassTrainOutput");
             let train_output = tangram_tree::MulticlassClassifier::train(
                 x_train.view(),
                 y_train.as_enum().unwrap().view(),
-                training_options,
+                &Default::default(),
                 progress,
             );
             Box::new(train_output)

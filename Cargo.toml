@@ -18,7 +18,7 @@ xgboost-bindings = {git = "https://github.com/MarWeUMR/xgboost-bindings"}
 polars = {version="*", features=["ndarray", "strings", "rows"]}
 pyo3= {version="*", features=["auto-initialize"]}
 ndarray = "*"
-smartcore = {version = "*"} 
+# smartcore = {version = "*"} 
 num-traits = "*"
 serde = { version = "*", features = ["derive"] }
 serde_json = "1"

@@ -31,8 +31,6 @@ fn main() {
     // ml::xgbindings::run(ml::xgbindings::Datasets::Cancer);
     println!("--------------------------\n\n");
 
-
-
     // println!("==========================");
     // println!("SMARTCORE with Titanic");
     // println!("==========================\n");
@@ -65,10 +63,20 @@ fn main() {
     // // ml::smrtcore::run(ml::smrtcore::Datasets::Cancer);
     // println!("--------------------------\n\n");
     //
-    println!("TANGRAM");
-    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Boston);
-    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Cancer);
-    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Landcover);
+    println!("TANGRAM\n");
+    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Boston);
+    println!("\n\n--------------------------\n\n");
+    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Iris);
+    println!("\n\n--------------------------\n\n");
+    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Cancer);
+    println!("\n\n--------------------------\n\n");
+    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Cancer);
+    println!("\n\n--------------------------\n\n");
+    println!("\n\n--------------------------\n\n");
+    println!("\n\n--------------------------\n\n");
+    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Titanic);
+    println!("\n\n--------------------------\n\n");
     // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Urban);
-    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Titanic);
+    println!("\n\n--------------------------\n\n");
+    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Titanic);
 }
