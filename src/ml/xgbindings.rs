@@ -4,7 +4,7 @@ use xgboost_bindings::{
     Booster, DMatrix,
 };
 
-use crate::ml::data_processing::{self, label_encode};
+use crate::ml::data_processing;
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy)]
@@ -18,38 +18,17 @@ pub enum Datasets {
 }
 
 pub fn run(set: Datasets) {
-    // specify dataset parameters
-    let mut df: DataFrame = CsvReader::from_path("datasets/urban/data.csv")
-        .unwrap()
-        .infer_schema(None)
-        .has_header(true)
-        .finish()
-        .unwrap();
-
-    let col = df.drop_in_place("class").unwrap();
-
-    let v = label_encode(col);
-    let s: Series = Series::new("class", v.as_slice().iter().collect());
-    // df.hstack_mut();
-
-    panic!();
-
     // one hot columns
-    let (dataset, path, target_column, ohe_cols) = get_dataset_metadata(set);
+    let (dataset, path, target_column, ohe_cols, label_encode_cols) = get_dataset_metadata(set);
 
-    println!("{:?}", path);
     println!("Working on dataset: {}", dataset);
-
-    // load_dakaframe_from_file(format!("datasets/iris/data.csv").as_str());
 
     // use python to preprocess data
     // data_processing::run_through_python(dataset);
 
     // read preprocessed data to rust
     let (x_train_array, x_test_array, y_train_array, y_test_array) =
-        data_processing::get_xg_matrix(path, target_column, ohe_cols);
-
-    println!("{:?}", x_train_array);
+        data_processing::get_xg_matrix(path, target_column, ohe_cols, label_encode_cols);
 
     let train_shape = x_train_array.raw_dim();
     let test_shape = x_test_array.raw_dim();
@@ -57,32 +36,30 @@ pub fn run(set: Datasets) {
     let num_rows_train = train_shape[0];
     let num_rows_test = test_shape[0];
 
-    let mut x_train = DMatrix::load("datasets/urban/train_data_xg.csv").unwrap();
-    let mut x_test = DMatrix::load("datasets/urban/test_data_xg.csv").unwrap();
+    // let mut x_train = DMatrix::load("datasets/urban/train_data_xg.csv").unwrap();
+    // let mut x_test = DMatrix::load("datasets/urban/test_data_xg.csv").unwrap();
 
-    println!("aösdlkfj");
-    println!("{:?}", x_train);
-    println!("{:?}", y_train_array.len());
+    dbg!(&x_train_array);
 
-    // let mut x_train = DMatrix::from_dense(
-    //     x_train_array
-    //         .into_shape(train_shape[0] * train_shape[1])
-    //         .unwrap()
-    //         .as_slice()
-    //         .unwrap(),
-    //     num_rows_train,
-    // )
-    // .unwrap();
-    //
-    // let mut x_test = DMatrix::from_dense(
-    //     x_test_array
-    //         .into_shape(test_shape[0] * test_shape[1])
-    //         .unwrap()
-    //         .as_slice()
-    //         .unwrap(),
-    //     num_rows_test,
-    // )
-    // .unwrap();
+    let mut x_train = DMatrix::from_dense(
+        x_train_array
+            .into_shape(train_shape[0] * train_shape[1])
+            .unwrap()
+            .as_slice()
+            .unwrap(),
+        num_rows_train,
+    )
+    .unwrap();
+
+    let mut x_test = DMatrix::from_dense(
+        x_test_array
+            .into_shape(test_shape[0] * test_shape[1])
+            .unwrap()
+            .as_slice()
+            .unwrap(),
+        num_rows_test,
+    )
+    .unwrap();
 
     x_train
         .set_labels(y_train_array.as_slice().unwrap())
@@ -90,41 +67,7 @@ pub fn run(set: Datasets) {
 
     x_test.set_labels(y_test_array.as_slice().unwrap()).unwrap();
 
-    let xg_classifier = get_objective(set, y_train_array.clone());
-
-    // optional
-    // let evaluation_sets = &[(&dtrain, "train"), (&dtest, "test")];
-
-    // RANDOM FOREST SETUP -----------------------------------
-
-    // let rf_tree_params = parameters::tree::TreeBoosterParametersBuilder::default()
-    //     .subsample(0.8)
-    //     .max_depth(5)
-    //     .eta(1.0) // aka learning_rate
-    //     .colsample_bytree(0.8)
-    //     // .num_parallel_tree(100) // <- NOT AVAILABLE ?!
-    //     .tree_method(parameters::tree::TreeMethod::Hist)
-    //     .build()
-    //     .unwrap();
-    //
-    // let rf_learning_params = LearningTaskParametersBuilder::default()
-    //     .objective(xg_classifier)
-    //     .build()
-    //     .unwrap();
-    //
-    // let rf_booster_params = BoosterParametersBuilder::default()
-    //     .booster_type(parameters::BoosterType::Tree(rf_tree_params))
-    //     .learning_params(rf_learning_params)
-    //     .build()
-    //     .unwrap();
-    //
-    // let rf_params = parameters::TrainingParametersBuilder::default()
-    //     .dtrain(&x_train)
-    //     .boost_rounds(1)
-    //     .booster_params(rf_booster_params)
-    //     .build()
-    //     .unwrap();
-    //
+    let _xg_classifier = get_objective(set, y_train_array.clone());
 
     let params = parameters::TrainingParametersBuilder::default()
         .dtrain(&x_train)
@@ -142,6 +85,7 @@ pub fn run(set: Datasets) {
         labels[0], labels[1], labels[2]
     );
 
+    // TODO: add meaningful evaluation metrics
     // print error rate
     let num_correct: usize = preds.iter().map(|&v| if v > 0.5 { 1 } else { 0 }).sum();
     println!(
@@ -152,24 +96,46 @@ pub fn run(set: Datasets) {
     );
 }
 
-fn get_dataset_metadata<'a>(set: Datasets) -> (&'a str, &'a str, &'a str, Vec<&'a str>) {
+fn get_dataset_metadata<'a>(
+    set: Datasets,
+) -> (&'a str, &'a str, &'a str, Vec<&'a str>, Vec<&'a str>) {
     let result = match set {
         Datasets::Titanic => (
             "titanic",
             "datasets/titanic/train_data.csv",
             "target",
             vec!["sex", "cabin", "embarked", "home.dest"],
+            vec![],
         ),
         Datasets::Landcover => (
             "landcover",
             "datasets/landcover/train_data.csv",
             "Class_ID",
             vec![],
+            vec![],
         ),
-        Datasets::Urban => ("urban", "datasets/urban/data.csv", "class", vec![]),
-        Datasets::Boston => ("boston", "datasets/boston/train_data.csv", "MEDV", vec![]),
-        Datasets::Cancer => ("cancer", "datasets/cancer/train_data.csv", "target", vec![]),
-        Datasets::Iris => ("iris", "datasets/iris/data.csv", "target", vec![]),
+        Datasets::Urban => (
+            "urban",
+            "datasets/urban/data.csv",
+            "class",
+            vec![],
+            vec!["class"],
+        ),
+        Datasets::Boston => (
+            "boston",
+            "datasets/boston/train_data.csv",
+            "MEDV",
+            vec![],
+            vec![],
+        ),
+        Datasets::Cancer => (
+            "cancer",
+            "datasets/cancer/train_data.csv",
+            "target",
+            vec![],
+            vec![],
+        ),
+        Datasets::Iris => ("iris", "datasets/iris/data.csv", "target", vec![], vec![]),
     };
     result
 }

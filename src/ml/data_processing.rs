@@ -36,6 +36,7 @@ pub fn get_xg_matrix(
     path: &str,
     target_column: &str,
     one_hot_encode_columns: Vec<&str>,
+    label_encode_columns: Vec<&str>,
 ) -> (
     ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
     ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
@@ -44,29 +45,50 @@ pub fn get_xg_matrix(
 ) {
     let mut df = load_dataframe_from_file(path);
 
+    // preprocess with encodings
+    label_encode_dataframe(&mut df, &label_encode_columns);
+    one_hot_encode_dataframe(&mut df, &one_hot_encode_columns);
+
     let (x_train, x_test, y_train, y_test) =
         split_data(df.clone(), target_column, &one_hot_encode_columns);
 
     (x_train, x_test, y_train, y_test)
 }
 
-pub fn label_encode(col: Series) -> Vec<usize> {
-    let uniques = col.unique().unwrap();
-    let unique_count = uniques.len();
+pub fn label_encode_dataframe(df: &mut DataFrame, categorical_columns: &[&str]) {
+    for col in categorical_columns.iter() {
+        println!("label encoding: {}", col);
 
-    let mut hm: HashMap<String, usize> = HashMap::new();
+        let col_pre_encoding = df.drop_in_place(col).unwrap();
 
-    for (i, elem) in uniques.iter().enumerate() {
-        println!("{}, {}", elem, i);
-        hm.insert(String::from(elem.to_string()), i);
+        let encoded_column = label_encode(col_pre_encoding);
+
+        df.hstack_mut(&[encoded_column]).unwrap();
     }
 
-    let v: Vec<usize> = col
+    println!("label encoding done");
+}
+
+fn label_encode(col: Series) -> Series {
+    let unique_categories = col.unique().unwrap();
+
+    let mut hm_categories: HashMap<String, u32> = HashMap::new();
+
+    for (i, elem) in unique_categories.iter().enumerate() {
+        hm_categories.insert(String::from(elem.to_string()), i as u32);
+    }
+
+    println!("with the following mapping: \n{:?}", &hm_categories);
+
+    let encoded_column_vec: Vec<u32> = col
         .iter()
-        .map(|elem| *hm.get(&elem.to_string()).unwrap())
+        .map(|elem| *hm_categories.get(&elem.to_string()).unwrap())
         .collect();
-    dbg!(&v);
-    v
+
+    let encoded_column_slice = encoded_column_vec.as_slice();
+
+    let encoded_col = Series::new(col.name(), encoded_column_slice.as_ref());
+    encoded_col
 }
 
 fn one_hot_encode_dataframe(df: &mut DataFrame, categorical_columns: &[&str]) {
@@ -78,6 +100,8 @@ fn one_hot_encode_dataframe(df: &mut DataFrame, categorical_columns: &[&str]) {
 
         df.hstack_mut(col_ohe.get_columns()).unwrap();
     }
+
+    println!("OH encoding done");
 }
 
 pub fn one_hot_encode_column(path: &str, target_column: &str) {
