@@ -1,0 +1,12 @@
+-- TANGRAM
+- kann nur csv lesen, keine arrays aufnehmen
+- train/test/split funktion nicht vorhanden??
+- categorical spalten müssen manuell getyped werden, damit der algo nicht knallt -> aufwand für user
+
+-- XGBOOST
+- kann keine categorical data
+- encoding in rust: pita
+
+-- gilt für beides
+- das management der matrizen ist tricky, weil ja unterschiedliche typen pro feature vorkommen können.
+- was passiert bei einem Datensatz mit vielen kategorischen Variablen, wenn one hot encoded wird und die "dense" matrix eigentlich "sparse" wird?

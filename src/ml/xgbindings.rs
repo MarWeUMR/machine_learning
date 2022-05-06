@@ -1,5 +1,3 @@
-use std::result;
-
 use xgboost_bindings::{
     parameters::{self, learning::LearningTaskParametersBuilder, BoosterParametersBuilder},
     Booster, DMatrix,
@@ -7,6 +5,7 @@ use xgboost_bindings::{
 
 use crate::ml::data_processing;
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy)]
 pub enum Datasets {
     Titanic,
@@ -14,19 +13,28 @@ pub enum Datasets {
     Urban,
     Boston,
     Cancer,
+    Iris,
 }
 
 pub fn run(set: Datasets) {
     // specify dataset parameters
 
-    let (dataset, target_column) = get_name_and_target_column(set);
+    // one hot columns 
+    let (dataset, path, target_column, ohe_cols) = get_dataset_metadata(set);
+
+    println!("{:?}", path);
+    println!("Working on dataset: {}", dataset);
+
+    // load_dakaframe_from_file(format!("datasets/iris/data.csv").as_str());
 
     // use python to preprocess data
-    data_processing::run_through_python(dataset);
+    // data_processing::run_through_python(dataset);
 
     // read preprocessed data to rust
     let (x_train_array, x_test_array, y_train_array, y_test_array) =
-        data_processing::get_data_matrix(dataset, target_column);
+        data_processing::get_xg_matrix(path, target_column, ohe_cols);
+
+println!("{:?}", x_train_array);
 
     let train_shape = x_train_array.raw_dim();
     let test_shape = x_test_array.raw_dim();
@@ -34,26 +42,32 @@ pub fn run(set: Datasets) {
     let num_rows_train = train_shape[0];
     let num_rows_test = test_shape[0];
 
-    let mut x_train = DMatrix::from_dense(
-        x_train_array
-            .into_shape(train_shape[0] * train_shape[1])
-            .unwrap()
-            .as_slice()
-            .unwrap(),
-        num_rows_train,
-    )
-    .unwrap();
+    let mut x_train = DMatrix::load("datasets/urban/train_data_xg.csv").unwrap();
+    let mut x_test = DMatrix::load("datasets/urban/test_data_xg.csv").unwrap();
 
-    let mut x_test = DMatrix::from_dense(
-        x_test_array
-            .into_shape(test_shape[0] * test_shape[1])
-            .unwrap()
-            .as_slice()
-            .unwrap(),
-        num_rows_test,
-    )
-    .unwrap();
+    println!("aösdlkfj");
+println!("{:?}", x_train);
+println!("{:?}", y_train_array.len());
 
+    // let mut x_train = DMatrix::from_dense(
+    //     x_train_array
+    //         .into_shape(train_shape[0] * train_shape[1])
+    //         .unwrap()
+    //         .as_slice()
+    //         .unwrap(),
+    //     num_rows_train,
+    // )
+    // .unwrap();
+    //
+    // let mut x_test = DMatrix::from_dense(
+    //     x_test_array
+    //         .into_shape(test_shape[0] * test_shape[1])
+    //         .unwrap()
+    //         .as_slice()
+    //         .unwrap(),
+    //     num_rows_test,
+    // )
+    // .unwrap();
 
     x_train
         .set_labels(y_train_array.as_slice().unwrap())
@@ -123,13 +137,14 @@ pub fn run(set: Datasets) {
     );
 }
 
-fn get_name_and_target_column<'a>(set: Datasets) -> (&'a str, &'a str) {
+fn get_dataset_metadata<'a>(set: Datasets) -> (&'a str, &'a str, &'a str, Vec<&'a str>) {
     let result = match set {
-        Datasets::Titanic => ("titanic", "target"),
-        Datasets::Landcover => ("landcover", "Class_ID"),
-        Datasets::Urban => ("urban", "class"),
-        Datasets::Boston => ("boston", "MEDV"),
-        Datasets::Cancer => ("cancer", "target"),
+        Datasets::Titanic => ("titanic", "datasets/titanic/train_data.csv", "target", vec!["sex", "cabin", "embarked", "home.dest"]),
+        Datasets::Landcover => ("landcover", "datasets/landcover/train_data.csv", "Class_ID", vec![]),
+        Datasets::Urban => ("urban", "datasets/urban/data.csv", "class", vec![]),
+        Datasets::Boston => ("boston", "datasets/boston/train_data.csv", "MEDV", vec![]),
+        Datasets::Cancer => ("cancer", "datasets/cancer/train_data.csv", "target", vec![]),
+        Datasets::Iris => ("iris", "datasets/iris/data.csv", "target", vec![]),
     };
     result
 }
@@ -160,6 +175,10 @@ fn get_objective<'a>(
         Datasets::Cancer => {
             println!("BinaryLogistic chosen");
             parameters::learning::Objective::BinaryLogistic
+        }
+        Datasets::Iris => {
+            println!("MultiSoftmax chosen");
+            parameters::learning::Objective::MultiSoftmax(n_unique)
         }
     };
     result

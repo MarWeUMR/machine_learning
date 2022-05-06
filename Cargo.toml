@@ -15,7 +15,7 @@ tangram_metrics = "*"
 # xgboost = "*"
 # xgboost-bindings = {path = "xgtest"}
 xgboost-bindings = {git = "https://github.com/MarWeUMR/xgboost-bindings"}
-polars = {version="*", features=["ndarray", "strings", "rows"]}
+polars = {version="*", features=["ndarray", "strings", "rows", "fmt"]}
 pyo3= {version="*", features=["auto-initialize"]}
 ndarray = "*"
 # smartcore = {version = "*"} 

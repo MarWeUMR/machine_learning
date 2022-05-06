@@ -1,9 +1,9 @@
-use crate::ml::data_processing::{get_data_matrix, get_tangram_matrix};
+use crate::ml::data_processing::{get_tangram_matrix, one_hot_encode_column};
 
 use super::data_processing;
 use ndarray::{prelude::*, OwnedRepr};
 use serde_json::json;
-use std::{any::Any, path::Path};
+use std::any::Any;
 
 use tangram_table::prelude::*;
 use tangram_tree::{
@@ -12,6 +12,7 @@ use tangram_tree::{
 };
 use tangram_zip::zip;
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy)]
 pub enum ModelType {
     Numeric,
@@ -19,6 +20,7 @@ pub enum ModelType {
     Multiclass,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy)]
 pub enum Datasets {
     Titanic,
@@ -35,9 +37,10 @@ pub fn run(set: Datasets) {
     println!("Working on dataset: {}", dataset);
 
     // use python to preprocess data
-    data_processing::run_through_python(dataset);
+    // data_processing::run_through_python(dataset);
 
     let (x_train, x_test, y_train, y_test) = get_tangram_matrix(dataset, target_column_idx);
+    one_hot_encode_column(format!("datasets/{dataset}/data.csv").as_str(), "target");
 
     // -------------------------------------------------------------------
     // Train the model using the correct algorithm for the given dataset
@@ -263,13 +266,14 @@ fn tangram_evaluate(
             println!("{}", output);
         }
         ModelType::Multiclass => {
-                        
             let arr = predictions
                 .clone()
                 .into_shape((y_test.len(), y_test.as_enum().unwrap().variants().len()))
                 .unwrap();
 
-            let mut metrics = tangram_metrics::MulticlassClassificationMetrics::new(y_test.as_enum().unwrap().variants().len());
+            let mut metrics = tangram_metrics::MulticlassClassificationMetrics::new(
+                y_test.as_enum().unwrap().variants().len(),
+            );
             metrics.update(tangram_metrics::MulticlassClassificationMetricsInput {
                 probabilities: arr.view(),
                 labels: y_test.as_enum().unwrap().view().as_slice().into(),
@@ -319,10 +323,12 @@ fn tangram_train_model(
         }
 
         ModelType::Multiclass => {
+            let y = y_train.as_enum().unwrap();
+
             println!("returning MulticlassTrainOutput");
             let train_output = tangram_tree::MulticlassClassifier::train(
                 x_train.view(),
-                y_train.as_enum().unwrap().view(),
+                y.view(),
                 &Default::default(),
                 progress,
             );

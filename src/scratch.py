@@ -9,11 +9,11 @@ from sklearn.model_selection import (
 
 
 # (X, y) = fetch_openml("iris", version=1, as_frame=True, return_X_y=True)
-X = fetch_openml("iris", version=1, as_frame=True)
+# X = fetch_openml("iris", version=1, as_frame=True)
 
-df = pd.DataFrame(data=X.data, columns=X.feature_names)
-# df = pd.read_csv("datasets/urban/test_data.csv")
-df["target"] = X.target
+# df = pd.DataFrame(data=X.data, columns=X.feature_names)
+df = pd.read_csv("datasets/urban/test_data.csv")
+# df["target"] = X.target
 
 # X.drop(["boat", "body", "home.dest"], axis=1, inplace=True)
 # X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.2)

@@ -2772,7 +2772,7 @@ dependencies = [
 [[package]]
 name = "xgboost-bindings"
 version = "0.1.0"
-source = "git+https://github.com/MarWeUMR/xgboost-bindings#89681885026a24796c4eab7601c5b9072475a2c7"
+source = "git+https://github.com/MarWeUMR/xgboost-bindings#1c87927eb7d607f132667e904dd0b63770f57914"
 dependencies = [
  "derive_builder",
  "indexmap",

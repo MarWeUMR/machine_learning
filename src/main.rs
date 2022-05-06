@@ -1,35 +1,24 @@
 mod ml;
 
+// TODOOOOOO
+// return trype für split_data ist bei den arrays ein problem, da momentan nur float arrays rausgegeben werden.
+// sollte hier für verschiedene typen gearbeitet werden, oder alles lieber enkodieren?
+
+
 fn main() {
-    println!("==========================");
-    println!("XG with Landcover");
-    println!("==========================\n");
+    println!("XGBOOST\n");
     // ml::xgbindings::run(ml::xgbindings::Datasets::Landcover);
     println!("--------------------------\n\n");
 
-    println!("==========================");
-    println!("XG with Titanic");
-    println!("==========================\n");
     // ml::xgbindings::run(ml::xgbindings::Datasets::Titanic);
-    println!("--------------------------\n\n");
 
-    println!("==========================");
-    println!("XG with Urban");
-    println!("==========================\n");
-    // ml::xgbindings::run(ml::xgbindings::Datasets::Urban);
-    println!("--------------------------\n\n");
+    ml::xgbindings::run(ml::xgbindings::Datasets::Urban);
 
-    println!("==========================");
-    println!("XG with Boston");
-    println!("==========================\n");
     // ml::xgbindings::run(ml::xgbindings::Datasets::Boston);
-    println!("--------------------------\n\n");
 
-    println!("==========================");
-    println!("XG with Cancer");
-    println!("==========================\n");
     // ml::xgbindings::run(ml::xgbindings::Datasets::Cancer);
-    println!("--------------------------\n\n");
+
+    // ml::xgbindings::run(ml::xgbindings::Datasets::Iris);
 
     // println!("==========================");
     // println!("SMARTCORE with Titanic");
@@ -63,20 +52,16 @@ fn main() {
     // // ml::smrtcore::run(ml::smrtcore::Datasets::Cancer);
     // println!("--------------------------\n\n");
     //
-    println!("TANGRAM\n");
-    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Boston);
-    println!("\n\n--------------------------\n\n");
-    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Iris);
-    println!("\n\n--------------------------\n\n");
-    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Cancer);
-    println!("\n\n--------------------------\n\n");
-    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Cancer);
-    println!("\n\n--------------------------\n\n");
-    println!("\n\n--------------------------\n\n");
-    println!("\n\n--------------------------\n\n");
-    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Titanic);
-    println!("\n\n--------------------------\n\n");
-    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Urban);
-    println!("\n\n--------------------------\n\n");
-    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Titanic);
+    // println!("TANGRAM\n");
+    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Boston);
+    // println!("\n\n--------------------------\n\n");
+    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Iris);
+    // println!("\n\n--------------------------\n\n");
+    // // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Cancer);
+    // println!("\n\n--------------------------\n\n");
+    // // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Titanic);
+    // println!("\n\n--------------------------\n\n");
+    // // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Urban);
+    // println!("\n\n--------------------------\n\n");
+    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Landcover);
 }
