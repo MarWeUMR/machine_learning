@@ -1,9 +1,10 @@
+use polars::{io::SerReader, prelude::*};
 use xgboost_bindings::{
     parameters::{self, learning::LearningTaskParametersBuilder, BoosterParametersBuilder},
     Booster, DMatrix,
 };
 
-use crate::ml::data_processing;
+use crate::ml::data_processing::{self, label_encode};
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy)]
@@ -18,8 +19,22 @@ pub enum Datasets {
 
 pub fn run(set: Datasets) {
     // specify dataset parameters
+    let mut df: DataFrame = CsvReader::from_path("datasets/urban/data.csv")
+        .unwrap()
+        .infer_schema(None)
+        .has_header(true)
+        .finish()
+        .unwrap();
 
-    // one hot columns 
+    let col = df.drop_in_place("class").unwrap();
+
+    let v = label_encode(col);
+    let s: Series = Series::new("class", v.as_slice().iter().collect());
+    // df.hstack_mut();
+
+    panic!();
+
+    // one hot columns
     let (dataset, path, target_column, ohe_cols) = get_dataset_metadata(set);
 
     println!("{:?}", path);
@@ -34,7 +49,7 @@ pub fn run(set: Datasets) {
     let (x_train_array, x_test_array, y_train_array, y_test_array) =
         data_processing::get_xg_matrix(path, target_column, ohe_cols);
 
-println!("{:?}", x_train_array);
+    println!("{:?}", x_train_array);
 
     let train_shape = x_train_array.raw_dim();
     let test_shape = x_test_array.raw_dim();
@@ -46,8 +61,8 @@ println!("{:?}", x_train_array);
     let mut x_test = DMatrix::load("datasets/urban/test_data_xg.csv").unwrap();
 
     println!("aösdlkfj");
-println!("{:?}", x_train);
-println!("{:?}", y_train_array.len());
+    println!("{:?}", x_train);
+    println!("{:?}", y_train_array.len());
 
     // let mut x_train = DMatrix::from_dense(
     //     x_train_array
@@ -139,8 +154,18 @@ println!("{:?}", y_train_array.len());
 
 fn get_dataset_metadata<'a>(set: Datasets) -> (&'a str, &'a str, &'a str, Vec<&'a str>) {
     let result = match set {
-        Datasets::Titanic => ("titanic", "datasets/titanic/train_data.csv", "target", vec!["sex", "cabin", "embarked", "home.dest"]),
-        Datasets::Landcover => ("landcover", "datasets/landcover/train_data.csv", "Class_ID", vec![]),
+        Datasets::Titanic => (
+            "titanic",
+            "datasets/titanic/train_data.csv",
+            "target",
+            vec!["sex", "cabin", "embarked", "home.dest"],
+        ),
+        Datasets::Landcover => (
+            "landcover",
+            "datasets/landcover/train_data.csv",
+            "Class_ID",
+            vec![],
+        ),
         Datasets::Urban => ("urban", "datasets/urban/data.csv", "class", vec![]),
         Datasets::Boston => ("boston", "datasets/boston/train_data.csv", "MEDV", vec![]),
         Datasets::Cancer => ("cancer", "datasets/cancer/train_data.csv", "target", vec![]),

@@ -1,10 +1,13 @@
-use std::{collections::BTreeMap, path::Path};
+use std::{
+    collections::{BTreeMap, HashMap},
+    path::Path,
+};
 
 use ndarray::{Array, ArrayBase, Dim, OwnedRepr};
 use polars::{
     datatypes::{Float32Type, IdxCa},
     io::SerReader,
-    prelude::{CsvReader, DataFrame, NamedFrom, Series},
+    prelude::*,
 };
 use pyo3::types::PyModule;
 use tangram_table::{Table, TableColumnType};
@@ -47,17 +50,30 @@ pub fn get_xg_matrix(
     (x_train, x_test, y_train, y_test)
 }
 
-fn label_encode(){
+pub fn label_encode(col: Series) -> Vec<usize> {
+    let uniques = col.unique().unwrap();
+    let unique_count = uniques.len();
 
-    
+    let mut hm: HashMap<String, usize> = HashMap::new();
 
+    for (i, elem) in uniques.iter().enumerate() {
+        println!("{}, {}", elem, i);
+        hm.insert(String::from(elem.to_string()), i);
+    }
+
+    let v: Vec<usize> = col
+        .iter()
+        .map(|elem| *hm.get(&elem.to_string()).unwrap())
+        .collect();
+    dbg!(&v);
+    v
 }
 
 fn one_hot_encode_dataframe(df: &mut DataFrame, categorical_columns: &[&str]) {
     for col in categorical_columns.iter() {
         println!("encoding: {}", col);
 
-        let col_pre_encoding: Series = df.drop_in_place(col).unwrap();
+        let col_pre_encoding = df.drop_in_place(col).unwrap();
         let col_ohe = col_pre_encoding.to_dummies().unwrap();
 
         df.hstack_mut(col_ohe.get_columns()).unwrap();
