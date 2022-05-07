@@ -7,7 +7,10 @@ use xgboost_bindings::{
 
 use crate::ml::data_processing::{self, get_xg_matrix, xg_set_ground_truth};
 
-use eval_metrics::{classification::{BinaryConfusionMatrix, MultiConfusionMatrix}, regression::rmse};
+use eval_metrics::{
+    classification::{BinaryConfusionMatrix, MultiConfusionMatrix},
+    regression::rmse,
+};
 
 use super::data_processing::get_multiclass_label_count;
 
@@ -95,7 +98,7 @@ fn evaluate_model(
         }
         Datasets::Boston => {
             xg_regression_evaluation(scores, labels);
-        },
+        }
         Datasets::Cancer => {
             xg_binary_evaluation(scores, labels, 0.5);
         }
@@ -219,10 +222,7 @@ pub fn xg_binary_evaluation(scores: &Vec<f32>, labels: &[f32], threshold: f32) {
 }
 
 pub fn xg_regression_evaluation(scores: &Vec<f32>, labels: &[f32]) {
-
     let lbl: Vec<f32> = labels.iter().map(|elem| *elem).collect();
-
-
 
     // root mean squared error
     let rmse = rmse(scores, &lbl).unwrap();
@@ -234,7 +234,6 @@ pub fn xg_regression_evaluation(scores: &Vec<f32>, labels: &[f32]) {
     // let rsq = rsq(&scores, &labels).unwrap();
     // pearson correlation coefficient
     // let corr = corr(&scores, &labels).unwrap();
-
 
     println!("rmse: {}", rmse);
 }
