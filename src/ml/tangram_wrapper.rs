@@ -1,4 +1,4 @@
-use crate::ml::data_processing::{get_tangram_matrix, one_hot_encode_column};
+use crate::ml::data_processing::{get_tangram_matrix, one_hot_encode_column, write_tangram_splits, load_dataframe_from_file};
 
 use super::data_processing;
 use ndarray::{prelude::*, OwnedRepr};
@@ -39,8 +39,11 @@ pub fn run(set: Datasets) {
     // use python to preprocess data
     // data_processing::run_through_python(dataset);
 
+    // read data and write tangram compatible train/test split files
+    let df = load_dataframe_from_file(format!("datasets/{dataset}/data.csv").as_str());
+    write_tangram_splits(df, dataset);
+
     let (x_train, x_test, y_train, y_test) = get_tangram_matrix(dataset, target_column_idx);
-    one_hot_encode_column(format!("datasets/{dataset}/data.csv").as_str(), "target");
 
     // -------------------------------------------------------------------
     // Train the model using the correct algorithm for the given dataset

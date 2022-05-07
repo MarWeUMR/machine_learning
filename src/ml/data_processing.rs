@@ -1,5 +1,6 @@
 use std::{
     collections::{BTreeMap, HashMap},
+    fs::File,
     path::Path,
 };
 
@@ -33,22 +34,51 @@ pub fn get_multiclass_label_count(
     count as u32
 }
 
+pub fn write_tangram_splits(df: DataFrame, dataset: &str) {
+    let n_rows = df.shape().0 as u32;
+    let split_position = f32::floor(0.8 * n_rows as f32) as u32;
+
+    let first_part: Vec<_> = (0..split_position).collect();
+    let first_part_slice = first_part.as_slice();
+    let second_part: Vec<_> = (split_position..n_rows - 1).collect();
+    let second_part_slice = second_part.as_slice();
+
+    let idx_train = IdxCa::new("idx", first_part_slice);
+    let idx_test = IdxCa::new("idx", second_part_slice);
+
+    let mut x_train: DataFrame = df.take(&idx_train).unwrap();
+    let mut x_test: DataFrame = df.take(&idx_test).unwrap();
+
+    // create a file
+    let mut file = File::create(format!("datasets/{dataset}/train_data.csv")).expect("could not create file");
+
+    // write DataFrame to file
+    let _ = CsvWriter::new(&mut file)
+        .has_header(true)
+        .with_delimiter(b',')
+        .finish(&mut x_train);
+
+    let mut file = File::create(format!("datasets/{dataset}/test_data.csv")).expect("could not create file");
+
+    let _ = CsvWriter::new(&mut file)
+        .has_header(true)
+        .with_delimiter(b',')
+        .finish(&mut x_test);
+
+}
+
 pub fn get_train_test_split_arrays(
-    path: &str,
+    df: DataFrame,
     target_column: &str,
-    one_hot_encode_columns: Vec<&str>,
-    label_encode_columns: Vec<&str>,
 ) -> (
     ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
     ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
     ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
     ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
 ) {
-    let mut df = load_dataframe_from_file(path);
-
     // preprocess with encodings
-    label_encode_dataframe(&mut df, &label_encode_columns);
-    one_hot_encode_dataframe(&mut df, &one_hot_encode_columns);
+    // label_encode_dataframe(&mut df, &label_encode_columns);
+    // one_hot_encode_dataframe(&mut df, &one_hot_encode_columns);
 
     // generate train/test splits as nd_arrays
     let (x_train, x_test, y_train, y_test) = split_data(df.clone(), target_column);
@@ -93,7 +123,7 @@ fn label_encode(col: Series) -> Series {
     encoded_col
 }
 
-fn one_hot_encode_dataframe(df: &mut DataFrame, categorical_columns: &[&str]) {
+pub fn one_hot_encode_dataframe(df: &mut DataFrame, categorical_columns: &[&str]) {
     for col in categorical_columns.iter() {
         println!("OH encoding: {}", col);
 
@@ -237,7 +267,7 @@ fn split_data(
     )
 }
 
-fn load_dataframe_from_file(path: &str) -> DataFrame {
+pub fn load_dataframe_from_file(path: &str) -> DataFrame {
     let df: DataFrame = CsvReader::from_path(path)
         .unwrap()
         .infer_schema(None)

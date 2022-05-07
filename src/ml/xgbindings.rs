@@ -5,7 +5,7 @@ use xgboost_bindings::{
     Booster,
 };
 
-use crate::ml::data_processing::{self, get_xg_matrix, xg_set_ground_truth};
+use crate::ml::data_processing::{self, get_xg_matrix, xg_set_ground_truth, load_dataframe_from_file, label_encode_dataframe, one_hot_encode_dataframe};
 
 use eval_metrics::{
     classification::{BinaryConfusionMatrix, MultiConfusionMatrix},
@@ -34,14 +34,17 @@ pub fn run(set: Datasets) {
     // use python to preprocess data
     // data_processing::run_through_python(dataset);
 
+    let mut df = load_dataframe_from_file(path);
+
+    label_encode_dataframe(&mut df, &label_encode_cols);
+    one_hot_encode_dataframe(&mut df, &ohe_cols);
+
     // read preprocessed data to rust
     // preprocessing consists of encodeing (label/onehot) and train/test splitting
     let (x_train_array, x_test_array, y_train_array, y_test_array) =
         data_processing::get_train_test_split_arrays(
-            path,
+            df,
             target_column,
-            ohe_cols,
-            label_encode_cols,
         );
 
     // get xgboost style matrices
