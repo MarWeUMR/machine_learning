@@ -75,6 +75,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "assert_approx_eq"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c07dab4369547dbe5114677b33fbbf724971019f3818172d59a97a61c774ffd"
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -529,6 +535,15 @@ dependencies = [
  "log",
  "regex",
  "termcolor",
+]
+
+[[package]]
+name = "eval-metrics"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a86dd1884809c758e7135e4f6934f7a217f815458c12886720d07b11e360f04a"
+dependencies = [
+ "assert_approx_eq",
 ]
 
 [[package]]
@@ -1001,6 +1016,7 @@ dependencies = [
 name = "machine_learning"
 version = "0.1.0"
 dependencies = [
+ "eval-metrics",
  "ndarray",
  "num-traits",
  "polars",

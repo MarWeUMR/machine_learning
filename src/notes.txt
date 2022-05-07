@@ -6,6 +6,7 @@
 -- XGBOOST
 - kann keine categorical data
 - encoding in rust: pita
+- multiclass braucht [0,n_class] labels für target vals
 
 -- gilt für beides
 - das management der matrizen ist tricky, weil ja unterschiedliche typen pro feature vorkommen können.

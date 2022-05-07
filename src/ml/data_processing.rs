@@ -11,6 +11,7 @@ use polars::{
 };
 use pyo3::types::PyModule;
 use tangram_table::{Table, TableColumnType};
+use xgboost_bindings::DMatrix;
 
 pub fn run_through_python(dataset: &str) {
     // use python to preprocess data
@@ -32,7 +33,7 @@ pub fn get_multiclass_label_count(
     count as u32
 }
 
-pub fn get_xg_matrix(
+pub fn get_train_test_split_arrays(
     path: &str,
     target_column: &str,
     one_hot_encode_columns: Vec<&str>,
@@ -49,9 +50,11 @@ pub fn get_xg_matrix(
     label_encode_dataframe(&mut df, &label_encode_columns);
     one_hot_encode_dataframe(&mut df, &one_hot_encode_columns);
 
+    // generate train/test splits as nd_arrays
     let (x_train, x_test, y_train, y_test) =
-        split_data(df.clone(), target_column, &one_hot_encode_columns);
+        split_data(df.clone(), target_column);
 
+    println!("splitting done.");
     (x_train, x_test, y_train, y_test)
 }
 
@@ -93,7 +96,7 @@ fn label_encode(col: Series) -> Series {
 
 fn one_hot_encode_dataframe(df: &mut DataFrame, categorical_columns: &[&str]) {
     for col in categorical_columns.iter() {
-        println!("encoding: {}", col);
+        println!("OH encoding: {}", col);
 
         let col_pre_encoding = df.drop_in_place(col).unwrap();
         let col_ohe = col_pre_encoding.to_dummies().unwrap();
@@ -109,10 +112,54 @@ pub fn one_hot_encode_column(path: &str, target_column: &str) {
 
     one_hot_encode_dataframe(&mut df, &["target"]);
 
-    println!("{}", df);
-
     // let target: Series = df.drop_in_place("target").unwrap();
     // let ohe = target.to_dummies().unwrap();
+}
+
+pub fn get_xg_matrix(
+    x_train_array: ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
+    x_test_array: ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
+) -> (DMatrix, DMatrix) {
+    let train_shape = x_train_array.raw_dim();
+    let test_shape = x_test_array.raw_dim();
+
+    let num_rows_train = train_shape[0];
+    let num_rows_test = test_shape[0];
+
+    let x_train = DMatrix::from_dense(
+        x_train_array
+            .into_shape(train_shape[0] * train_shape[1])
+            .unwrap()
+            .as_slice()
+            .unwrap(),
+        num_rows_train,
+    )
+    .unwrap();
+
+    let x_test = DMatrix::from_dense(
+        x_test_array
+            .into_shape(test_shape[0] * test_shape[1])
+            .unwrap()
+            .as_slice()
+            .unwrap(),
+        num_rows_test,
+    )
+    .unwrap();
+
+    (x_train, x_test)
+}
+
+pub fn xg_set_ground_truth(
+    x_train: &mut DMatrix,
+    x_test: &mut DMatrix,
+    y_train_array: &ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
+    y_test_array: &ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
+) {
+    x_train
+        .set_labels(y_train_array.as_slice().unwrap())
+        .unwrap();
+
+    x_test.set_labels(y_test_array.as_slice().unwrap()).unwrap();
 }
 
 pub fn get_tangram_matrix(
@@ -158,7 +205,6 @@ pub fn get_tangram_matrix(
 fn split_data(
     df: DataFrame,
     target_column: &str,
-    one_hot_encode_columns: &Vec<&str>,
 ) -> (
     ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
     ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
@@ -179,16 +225,11 @@ fn split_data(
     let mut x_train: DataFrame = df.take(&idx_train).unwrap();
     let mut x_test: DataFrame = df.take(&idx_test).unwrap();
 
-    // one_hot_encode_columns
-    one_hot_encode_dataframe(&mut x_train, &one_hot_encode_columns);
-    one_hot_encode_dataframe(&mut x_test, &one_hot_encode_columns);
-
     let y_test: DataFrame =
         DataFrame::new(vec![x_test.drop_in_place(target_column).unwrap()]).unwrap();
     let y_train: DataFrame =
         DataFrame::new(vec![x_train.drop_in_place(target_column).unwrap()]).unwrap();
 
-    println!("{}", x_train);
     (
         x_train.to_ndarray::<Float32Type>().unwrap(),
         x_test.to_ndarray::<Float32Type>().unwrap(),
@@ -204,6 +245,7 @@ fn load_dataframe_from_file(path: &str) -> DataFrame {
         .has_header(true)
         .finish()
         .unwrap();
+
 
     df
 }

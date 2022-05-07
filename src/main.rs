@@ -4,21 +4,25 @@ mod ml;
 // return trype für split_data ist bei den arrays ein problem, da momentan nur float arrays rausgegeben werden.
 // sollte hier für verschiedene typen gearbeitet werden, oder alles lieber enkodieren?
 
-
 fn main() {
     println!("XGBOOST\n");
-    // ml::xgbindings::run(ml::xgbindings::Datasets::Landcover);
+    ml::xgbindings::run(ml::xgbindings::Datasets::Landcover);
     println!("--------------------------\n\n");
 
-    // ml::xgbindings::run(ml::xgbindings::Datasets::Titanic);
+    ml::xgbindings::run(ml::xgbindings::Datasets::Titanic);
+    println!("--------------------------\n\n");
 
     ml::xgbindings::run(ml::xgbindings::Datasets::Urban);
+    println!("--------------------------\n\n");
 
-    // ml::xgbindings::run(ml::xgbindings::Datasets::Boston);
+    ml::xgbindings::run(ml::xgbindings::Datasets::Boston);
+    println!("--------------------------\n\n");
 
-    // ml::xgbindings::run(ml::xgbindings::Datasets::Cancer);
+    ml::xgbindings::run(ml::xgbindings::Datasets::Cancer);
+    println!("--------------------------\n\n");
 
-    // ml::xgbindings::run(ml::xgbindings::Datasets::Iris);
+    ml::xgbindings::run(ml::xgbindings::Datasets::Iris);
+    println!("--------------------------\n\n");
 
     // println!("==========================");
     // println!("SMARTCORE with Titanic");
