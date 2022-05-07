@@ -51,8 +51,7 @@ pub fn get_train_test_split_arrays(
     one_hot_encode_dataframe(&mut df, &one_hot_encode_columns);
 
     // generate train/test splits as nd_arrays
-    let (x_train, x_test, y_train, y_test) =
-        split_data(df.clone(), target_column);
+    let (x_train, x_test, y_train, y_test) = split_data(df.clone(), target_column);
 
     println!("splitting done.");
     (x_train, x_test, y_train, y_test)
@@ -245,7 +244,6 @@ fn load_dataframe_from_file(path: &str) -> DataFrame {
         .has_header(true)
         .finish()
         .unwrap();
-
 
     df
 }
