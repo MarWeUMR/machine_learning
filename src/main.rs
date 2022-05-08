@@ -1,8 +1,7 @@
 mod ml;
 
 // TODOOOOOO
-// return trype für split_data ist bei den arrays ein problem, da momentan nur float arrays rausgegeben werden.
-// sollte hier für verschiedene typen gearbeitet werden, oder alles lieber enkodieren?
+// wie soll für tangram die optionsliste programmatisch angelegt werden
 
 fn main() {
     println!("XGBOOST\n");
@@ -57,13 +56,13 @@ fn main() {
     // println!("--------------------------\n\n");
     //
     // println!("TANGRAM\n");
-    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Boston);
+    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Boston);
     // println!("\n\n--------------------------\n\n");
-    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Iris);
+    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Iris);
     // println!("\n\n--------------------------\n\n");
-    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Cancer);
+    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Cancer);
     // println!("\n\n--------------------------\n\n");
-    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Titanic);
+    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Titanic);
     // println!("\n\n--------------------------\n\n");
     // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Urban);
     // println!("\n\n--------------------------\n\n");

@@ -1,4 +1,4 @@
-use crate::ml::data_processing::{get_tangram_matrix, one_hot_encode_column, write_tangram_splits, load_dataframe_from_file};
+use crate::ml::data_processing::{get_tangram_matrix, one_hot_encode_column, write_tangram_splits, load_dataframe_from_file, build_tangram_options};
 
 use super::data_processing;
 use ndarray::{prelude::*, OwnedRepr};
@@ -36,6 +36,7 @@ pub fn run(set: Datasets) {
 
     println!("Working on dataset: {}", dataset);
 
+    build_tangram_options();
     // use python to preprocess data
     // data_processing::run_through_python(dataset);
 
@@ -219,6 +220,7 @@ fn tangram_predict(
                 .predict(x_test.to_rows().view(), predictions.view_mut());
         }
         ModelType::Multiclass => {
+
             let mut arr = predictions
                 .clone()
                 .into_shape((x_test.nrows(), num_of_unique_target_values))
@@ -329,6 +331,7 @@ fn tangram_train_model(
             let y = y_train.as_enum().unwrap();
 
             println!("returning MulticlassTrainOutput");
+
             let train_output = tangram_tree::MulticlassClassifier::train(
                 x_train.view(),
                 y.view(),

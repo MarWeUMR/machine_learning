@@ -50,7 +50,8 @@ pub fn write_tangram_splits(df: DataFrame, dataset: &str) {
     let mut x_test: DataFrame = df.take(&idx_test).unwrap();
 
     // create a file
-    let mut file = File::create(format!("datasets/{dataset}/train_data.csv")).expect("could not create file");
+    let mut file =
+        File::create(format!("datasets/{dataset}/train_data.csv")).expect("could not create file");
 
     // write DataFrame to file
     let _ = CsvWriter::new(&mut file)
@@ -58,13 +59,13 @@ pub fn write_tangram_splits(df: DataFrame, dataset: &str) {
         .with_delimiter(b',')
         .finish(&mut x_train);
 
-    let mut file = File::create(format!("datasets/{dataset}/test_data.csv")).expect("could not create file");
+    let mut file =
+        File::create(format!("datasets/{dataset}/test_data.csv")).expect("could not create file");
 
     let _ = CsvWriter::new(&mut file)
         .has_header(true)
         .with_delimiter(b',')
         .finish(&mut x_test);
-
 }
 
 pub fn get_train_test_split_arrays(
@@ -191,6 +192,32 @@ pub fn xg_set_ground_truth(
     x_test.set_labels(y_test_array.as_slice().unwrap()).unwrap();
 }
 
+pub fn build_tangram_options() {
+    let mut df = load_dataframe_from_file(format!("datasets/iris/data.csv").as_str());
+
+    let cols = ["target", "sepallength"];
+
+    let mut v: Vec<(String, TableColumnType)> = vec![];
+
+    for elem in cols.iter() {
+        let col = df.drop_in_place(elem).unwrap();
+        let uniques = col.unique().unwrap();
+        let variants: Vec<_> = uniques.iter().map(|elem| elem.to_string()).collect();
+        let tup = (col.name().to_owned(), TableColumnType::Enum { variants });
+        v.push(tup);
+    }
+
+    let what: &[(String,TableColumnType);2] = v.as_slice().try_into().unwrap();
+    let the = what.to_owned();
+
+
+    // make options
+    let options = tangram_table::FromCsvOptions {
+        column_types: Some(BTreeMap::from(the)),
+        ..Default::default()
+    };
+}
+
 pub fn get_tangram_matrix(
     dataset: &str,
     target_column_idx: usize,
@@ -210,6 +237,7 @@ pub fn get_tangram_matrix(
         .iter()
         .map(ToString::to_string)
         .collect();
+
     let options = tangram_table::FromCsvOptions {
         column_types: Some(BTreeMap::from([(
             "Class_ID".to_owned(),
@@ -222,8 +250,12 @@ pub fn get_tangram_matrix(
 
     // ------------------------------------
 
-    let mut x_train = Table::from_path(csv_file_path_train, options.clone(), &mut |_| {}).unwrap();
-    let mut x_test = Table::from_path(csv_file_path_test, options.clone(), &mut |_| {}).unwrap();
+    let mut x_train =
+        Table::from_path(csv_file_path_train, Default::default(), &mut |_| {}).unwrap();
+    let mut x_test = Table::from_path(csv_file_path_test, Default::default(), &mut |_| {}).unwrap();
+
+    // let mut x_train = Table::from_path(csv_file_path_train, options.clone(), &mut |_| {}).unwrap();
+    // let mut x_test = Table::from_path(csv_file_path_test, options.clone(), &mut |_| {}).unwrap();
 
     let y_train = x_train.columns_mut().remove(target_column_idx);
     let y_test = x_test.columns_mut().remove(target_column_idx);
