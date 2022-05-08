@@ -192,35 +192,42 @@ pub fn xg_set_ground_truth(
     x_test.set_labels(y_test_array.as_slice().unwrap()).unwrap();
 }
 
-pub fn build_tangram_options() {
-    let mut df = load_dataframe_from_file(format!("datasets/iris/data.csv").as_str());
+pub fn build_tangram_options<'a>(
+    dataset: &str,
+    enum_cols: Vec<&str>,
+) -> tangram_table::FromCsvOptions<'a> {
 
-    let cols = ["target", "sepallength"];
+    let mut df = load_dataframe_from_file(format!("datasets/{dataset}/data.csv").as_str());
 
-    let mut v: Vec<(String, TableColumnType)> = vec![];
+    let mut btm: BTreeMap<String, TableColumnType> = BTreeMap::new();
 
-    for elem in cols.iter() {
-        let col = df.drop_in_place(elem).unwrap();
+    for col in enum_cols.iter() {
+        let col = df.drop_in_place(col).unwrap();
         let uniques = col.unique().unwrap();
-        let variants: Vec<_> = uniques.iter().map(|elem| elem.to_string()).collect();
-        let tup = (col.name().to_owned(), TableColumnType::Enum { variants });
-        v.push(tup);
+
+        let variants: Vec<_> = uniques
+            .utf8()
+            .unwrap()
+            .into_iter()
+            .map(|elem| elem.unwrap().to_owned())
+            .collect();
+
+        btm.insert(col.name().to_owned(), TableColumnType::Enum { variants });
     }
-
-    let what: &[(String,TableColumnType);2] = v.as_slice().try_into().unwrap();
-    let the = what.to_owned();
-
 
     // make options
     let options = tangram_table::FromCsvOptions {
-        column_types: Some(BTreeMap::from(the)),
+        column_types: Some(btm),
         ..Default::default()
     };
+
+    options
 }
 
 pub fn get_tangram_matrix(
     dataset: &str,
     target_column_idx: usize,
+    enum_cols: Vec<&str>,
 ) -> (
     Table,
     Table,
@@ -232,30 +239,12 @@ pub fn get_tangram_matrix(
     let csv_file_path_train = Path::new(train_path);
     let csv_file_path_test = Path::new(test_path);
 
-    // ------------------------------------
-    let target_variants = ["1", "2", "3", "4", "5"]
-        .iter()
-        .map(ToString::to_string)
-        .collect();
-
-    let options = tangram_table::FromCsvOptions {
-        column_types: Some(BTreeMap::from([(
-            "Class_ID".to_owned(),
-            TableColumnType::Enum {
-                variants: target_variants,
-            },
-        )])),
-        ..Default::default()
-    };
+    let options = build_tangram_options(dataset, enum_cols);
 
     // ------------------------------------
 
-    let mut x_train =
-        Table::from_path(csv_file_path_train, Default::default(), &mut |_| {}).unwrap();
-    let mut x_test = Table::from_path(csv_file_path_test, Default::default(), &mut |_| {}).unwrap();
-
-    // let mut x_train = Table::from_path(csv_file_path_train, options.clone(), &mut |_| {}).unwrap();
-    // let mut x_test = Table::from_path(csv_file_path_test, options.clone(), &mut |_| {}).unwrap();
+    let mut x_train = Table::from_path(csv_file_path_train, options.clone(), &mut |_| {}).unwrap();
+    let mut x_test = Table::from_path(csv_file_path_test, options.clone(), &mut |_| {}).unwrap();
 
     let y_train = x_train.columns_mut().remove(target_column_idx);
     let y_test = x_test.columns_mut().remove(target_column_idx);

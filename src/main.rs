@@ -1,3 +1,6 @@
+
+#![feature(unsize, coerce_unsized)]
+
 mod ml;
 
 // TODOOOOOO
@@ -56,7 +59,7 @@ fn main() {
     // println!("--------------------------\n\n");
     //
     // println!("TANGRAM\n");
-    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Boston);
+    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Boston);
     // println!("\n\n--------------------------\n\n");
     ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Iris);
     // println!("\n\n--------------------------\n\n");

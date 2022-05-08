@@ -32,11 +32,10 @@ pub enum Datasets {
 }
 
 pub fn run(set: Datasets) {
-    let (dataset, target_column_idx, model_type) = get_dataset_info(set);
+    let (dataset, target_column_idx, model_type, enum_cols) = get_dataset_info(set);
 
     println!("Working on dataset: {}", dataset);
 
-    build_tangram_options();
     // use python to preprocess data
     // data_processing::run_through_python(dataset);
 
@@ -44,7 +43,7 @@ pub fn run(set: Datasets) {
     let df = load_dataframe_from_file(format!("datasets/{dataset}/data.csv").as_str());
     write_tangram_splits(df, dataset);
 
-    let (x_train, x_test, y_train, y_test) = get_tangram_matrix(dataset, target_column_idx);
+    let (x_train, x_test, y_train, y_test) = get_tangram_matrix(dataset, target_column_idx, enum_cols);
 
     // -------------------------------------------------------------------
     // Train the model using the correct algorithm for the given dataset
@@ -104,14 +103,15 @@ pub fn run(set: Datasets) {
     tangram_evaluate(model_type, &mut predictions, &y_test);
 }
 
-fn get_dataset_info<'a>(set: Datasets) -> (&'a str, usize, ModelType) {
+fn get_dataset_info<'a>(set: Datasets) -> (&'a str, usize, ModelType, Vec<&'a str>) {
+    // tuple: (datasetname, traget_col_idx, ModelType, EnumColNames)
     let result = match set {
-        Datasets::Titanic => ("titanic", 13, ModelType::Binary),
-        Datasets::Urban => ("urban", 0, ModelType::Multiclass),
-        Datasets::Landcover => ("landcover", 12, ModelType::Multiclass),
-        Datasets::Boston => ("boston", 13, ModelType::Numeric),
-        Datasets::Cancer => ("cancer", 30, ModelType::Binary),
-        Datasets::Iris => ("iris", 4, ModelType::Multiclass),
+        Datasets::Titanic => ("titanic", 13, ModelType::Binary, vec![]),
+        Datasets::Urban => ("urban", 0, ModelType::Multiclass, vec![]),
+        Datasets::Landcover => ("landcover", 12, ModelType::Multiclass, vec![]),
+        Datasets::Boston => ("boston", 13, ModelType::Numeric, vec![]),
+        Datasets::Cancer => ("cancer", 30, ModelType::Binary, vec![]),
+        Datasets::Iris => ("iris", 4, ModelType::Multiclass, vec!["target"]),
     };
     result
 }
