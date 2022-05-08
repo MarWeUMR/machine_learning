@@ -201,9 +201,21 @@ pub fn build_tangram_options<'a>(
 
     let mut btm: BTreeMap<String, TableColumnType> = BTreeMap::new();
 
+    let myschema = Schema::from(
+        vec![
+            Field::new("sepal_length", DataType::Float64),
+            Field::new("sepal_width", DataType::Float64),
+            Field::new("petal_length", DataType::Utf8),
+            Field::new("petal_width", DataType::Float64),
+            Field::new("species", DataType::Utf8),
+        ]
+    );
+
     for col in enum_cols.iter() {
         let col = df.drop_in_place(col).unwrap();
         let uniques = col.unique().unwrap();
+
+        dbg!(col.dtype());
 
         let variants: Vec<_> = uniques
             .utf8()
@@ -288,6 +300,7 @@ fn split_data(
     )
 }
 
+// TODO schema
 pub fn load_dataframe_from_file(path: &str) -> DataFrame {
     let df: DataFrame = CsvReader::from_path(path)
         .unwrap()

@@ -63,11 +63,11 @@ fn main() {
     // println!("\n\n--------------------------\n\n");
     ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Iris);
     // println!("\n\n--------------------------\n\n");
-    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Cancer);
+    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Cancer);
     // println!("\n\n--------------------------\n\n");
     // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Titanic);
     // println!("\n\n--------------------------\n\n");
     // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Urban);
     // println!("\n\n--------------------------\n\n");
-    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Landcover);
+    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Landcover);
 }

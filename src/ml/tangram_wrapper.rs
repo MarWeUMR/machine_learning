@@ -107,8 +107,8 @@ fn get_dataset_info<'a>(set: Datasets) -> (&'a str, usize, ModelType, Vec<&'a st
     // tuple: (datasetname, traget_col_idx, ModelType, EnumColNames)
     let result = match set {
         Datasets::Titanic => ("titanic", 13, ModelType::Binary, vec![]),
-        Datasets::Urban => ("urban", 0, ModelType::Multiclass, vec![]),
-        Datasets::Landcover => ("landcover", 12, ModelType::Multiclass, vec![]),
+        Datasets::Urban => ("urban", 0, ModelType::Multiclass, vec!["class"]),
+        Datasets::Landcover => ("landcover", 12, ModelType::Multiclass, vec!["Class_ID"]),
         Datasets::Boston => ("boston", 13, ModelType::Numeric, vec![]),
         Datasets::Cancer => ("cancer", 30, ModelType::Binary, vec![]),
         Datasets::Iris => ("iris", 4, ModelType::Multiclass, vec!["target"]),
