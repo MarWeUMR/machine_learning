@@ -4,26 +4,15 @@ use std::{
     path::Path,
 };
 
-use ndarray::{Array, ArrayBase, Dim, OwnedRepr};
+use ndarray::{ArrayBase, Dim, OwnedRepr};
 use polars::{
     datatypes::{Float32Type, IdxCa},
     io::SerReader,
     prelude::*,
 };
-use pyo3::types::PyModule;
 use tangram_table::{Table, TableColumnType};
 use xgboost_bindings::DMatrix;
 
-pub fn run_through_python(dataset: &str) {
-    // use python to preprocess data
-    let gil = pyo3::Python::acquire_gil();
-    let py = gil.python();
-    let py_mod =
-        PyModule::from_code(py, include_str!("../test.py"), "filename.py", "modulename").unwrap();
-
-    let py_load_data = py_mod.getattr("load_data").unwrap();
-    py_load_data.call1((dataset,)).unwrap();
-}
 
 pub fn get_multiclass_label_count(
     dataset: ndarray::ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
@@ -49,16 +38,17 @@ pub fn write_tangram_splits(df: DataFrame, dataset: &str) {
     let mut x_train: DataFrame = df.take(&idx_train).unwrap();
     let mut x_test: DataFrame = df.take(&idx_test).unwrap();
 
-    // create a file
+    // create train file for tangram
     let mut file =
         File::create(format!("datasets/{dataset}/train_data.csv")).expect("could not create file");
 
-    // write DataFrame to file
     let _ = CsvWriter::new(&mut file)
         .has_header(true)
         .with_delimiter(b',')
         .finish(&mut x_train);
 
+
+    // create test file for tangram
     let mut file =
         File::create(format!("datasets/{dataset}/test_data.csv")).expect("could not create file");
 
@@ -137,14 +127,14 @@ pub fn one_hot_encode_dataframe(df: &mut DataFrame, categorical_columns: &[&str]
     println!("OH encoding done");
 }
 
-pub fn one_hot_encode_column(path: &str, target_column: &str) {
-    let mut df = load_dataframe_from_file(path);
-
-    one_hot_encode_dataframe(&mut df, &["target"]);
-
-    // let target: Series = df.drop_in_place("target").unwrap();
-    // let ohe = target.to_dummies().unwrap();
-}
+// pub fn one_hot_encode_column(path: &str, target_column: &str) {
+//     let mut df = load_dataframe_from_file(path, None);
+//
+//     one_hot_encode_dataframe(&mut df, &["target"]);
+//
+//     // let target: Series = df.drop_in_place("target").unwrap();
+//     // let ohe = target.to_dummies().unwrap();
+// }
 
 pub fn get_xg_matrix(
     x_train_array: ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
@@ -192,30 +182,39 @@ pub fn xg_set_ground_truth(
     x_test.set_labels(y_test_array.as_slice().unwrap()).unwrap();
 }
 
+/// For every given column an entry in the schema as utf8 is generated.
+/// This ensures, that tangram can treat the column as enum and not automatically as int.
+fn generate_enum_column_schema(enum_cols: Vec<&str>) -> Schema {
+    let mut enum_column_schema: Vec<_> = Vec::new();
+
+    for col in enum_cols.iter() {
+        enum_column_schema.push(Field::new(col, DataType::Utf8));
+    }
+
+    let enum_schema = Schema::from(enum_column_schema);
+    enum_schema
+}
+
 pub fn build_tangram_options<'a>(
     dataset: &str,
     enum_cols: Vec<&str>,
 ) -> tangram_table::FromCsvOptions<'a> {
+    // this is necessary if there are integer columns representing categories.
+    // these columns need to get a special treatment
+    let enum_schema = generate_enum_column_schema(enum_cols.clone());
 
-    let mut df = load_dataframe_from_file(format!("datasets/{dataset}/data.csv").as_str());
+    let mut df = load_dataframe_from_file(
+        format!("datasets/{dataset}/data.csv").as_str(),
+        Some(enum_schema),
+    );
+
 
     let mut btm: BTreeMap<String, TableColumnType> = BTreeMap::new();
-
-    let myschema = Schema::from(
-        vec![
-            Field::new("sepal_length", DataType::Float64),
-            Field::new("sepal_width", DataType::Float64),
-            Field::new("petal_length", DataType::Utf8),
-            Field::new("petal_width", DataType::Float64),
-            Field::new("species", DataType::Utf8),
-        ]
-    );
 
     for col in enum_cols.iter() {
         let col = df.drop_in_place(col).unwrap();
         let uniques = col.unique().unwrap();
 
-        dbg!(col.dtype());
 
         let variants: Vec<_> = uniques
             .utf8()
@@ -300,54 +299,66 @@ fn split_data(
     )
 }
 
-// TODO schema
-pub fn load_dataframe_from_file(path: &str) -> DataFrame {
-    let df: DataFrame = CsvReader::from_path(path)
-        .unwrap()
-        .infer_schema(None)
-        .has_header(true)
-        .finish()
-        .unwrap();
+pub fn load_dataframe_from_file(path: &str, schema: Option<Schema>) -> DataFrame {
 
-    df
+    match schema {
+        Some(_) => {
+            let df: DataFrame = CsvReader::from_path(path)
+                .unwrap()
+                // .infer_schema(None)
+                .with_dtypes(Some(&schema.unwrap()))
+                .has_header(true)
+                .finish()
+                .unwrap();
+
+            df
+        }
+        None => {
+            let df: DataFrame = CsvReader::from_path(path)
+                .unwrap()
+                .infer_schema(None)
+                // .with_dtypes(Some(&schema.unwrap()))
+                .has_header(true)
+                .finish()
+                .unwrap();
+
+            df
+        }
+    }
 }
 
-pub fn get_data_matrix(
-    dataset: &str,
-    target_column: &str,
-) -> (
-    ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
-    ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
-    ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
-    ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
-) {
-    // read preprocessed data to rust
-    let mut x_train_frame =
-        load_dataframe_from_file(format!("datasets/{dataset}/train_data.csv").as_str());
-    let mut x_test_frame =
-        load_dataframe_from_file(format!("datasets/{dataset}/test_data.csv").as_str());
-
-    let y_train_frame = DataFrame::new(vec![x_train_frame
-        .drop_in_place(target_column)
-        .unwrap()
-        .clone()])
-    .unwrap();
-    let y_train_array = y_train_frame.to_ndarray::<Float32Type>().unwrap();
-    // x_train_frame.drop_in_place(target_column).unwrap();
-
-    let y_test_frame = DataFrame::new(vec![x_test_frame
-        .drop_in_place(target_column)
-        .unwrap()
-        .clone()])
-    .unwrap();
-    let y_test_array = y_test_frame.to_ndarray::<Float32Type>().unwrap();
-    // x_test_frame.drop_in_place(target_column).unwrap();
-
-    let x_train_array: Array<f32, _> = x_train_frame.to_ndarray::<Float32Type>().unwrap();
-    let x_test_array: Array<f32, _> = x_test_frame.to_ndarray::<Float32Type>().unwrap();
-
-    // println!("{:?}", x_train_frame);
-    // println!("{:?}", x_train_frame.transpose());
-
-    (x_train_array, x_test_array, y_train_array, y_test_array)
-}
+// pub fn get_data_matrix(
+//     dataset: &str,
+//     target_column: &str,
+// ) -> (
+//     ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
+//     ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
+//     ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
+//     ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
+// ) {
+//     // read preprocessed data to rust
+//     let mut x_train_frame =
+//         load_dataframe_from_file(format!("datasets/{dataset}/train_data.csv").as_str(), None);
+//     let mut x_test_frame =
+//         load_dataframe_from_file(format!("datasets/{dataset}/test_data.csv").as_str(), None);
+//
+//     let y_train_frame = DataFrame::new(vec![x_train_frame
+//         .drop_in_place(target_column)
+//         .unwrap()
+//         .clone()])
+//     .unwrap();
+//     let y_train_array = y_train_frame.to_ndarray::<Float32Type>().unwrap();
+//
+//     let y_test_frame = DataFrame::new(vec![x_test_frame
+//         .drop_in_place(target_column)
+//         .unwrap()
+//         .clone()])
+//     .unwrap();
+//     let y_test_array = y_test_frame.to_ndarray::<Float32Type>().unwrap();
+//
+//     let x_train_array: Array<f32, _> = x_train_frame.to_ndarray::<Float32Type>().unwrap();
+//     let x_test_array: Array<f32, _> = x_test_frame.to_ndarray::<Float32Type>().unwrap();
+//
+//
+//     (x_train_array, x_test_array, y_train_array, y_test_array)
+// }

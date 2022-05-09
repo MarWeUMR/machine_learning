@@ -1,12 +1,15 @@
 -- TANGRAM
 - kann nur csv lesen, keine arrays aufnehmen
-- train/test/split funktion nicht vorhanden??
+- -> daher muss train/test split nochmal als csv ausgeschrieben werden
 - categorical spalten müssen manuell getyped werden, damit der algo nicht knallt -> aufwand für user
+- -> Lösung gefunden, aber brauchbar?
+- sehr umständlich die spalten zu typen, da man integer spalten gezielt als strings übergeben muss um das typinfering auszutricksen.
 
 -- XGBOOST
 - kann keine categorical data
 - encoding in rust: pita
 - multiclass braucht [0,n_class] labels für target vals
+- -> eigentlich "schöne" spalten wie [1,2,3] gehen nicht und müssen auf [0,1,2] gemapped werden.
 
 -- gilt für beides
 - das management der matrizen ist tricky, weil ja unterschiedliche typen pro feature vorkommen können.

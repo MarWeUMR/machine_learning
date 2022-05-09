@@ -1,7 +1,6 @@
 use ndarray::{ArrayBase, Dim, OwnedRepr};
-use polars::prelude::*;
 use xgboost_bindings::{
-    parameters::{self},
+    parameters,
     Booster,
 };
 
@@ -34,7 +33,7 @@ pub fn run(set: Datasets) {
     // use python to preprocess data
     // data_processing::run_through_python(dataset);
 
-    let mut df = load_dataframe_from_file(path);
+    let mut df = load_dataframe_from_file(path, None);
 
     label_encode_dataframe(&mut df, &label_encode_cols);
     one_hot_encode_dataframe(&mut df, &ohe_cols);
@@ -259,7 +258,7 @@ pub fn xg_multiclass_evaluation(scores: &Vec<f32>, labels: &[f32], n_unique: u32
     let matrix = MultiConfusionMatrix::compute(&scrs, &lbl).unwrap();
 
     // get counts
-    let counts = &matrix.counts;
+    let _counts = &matrix.counts;
 
     // metrics
     let acc = matrix.accuracy().unwrap();
