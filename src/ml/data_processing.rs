@@ -83,7 +83,6 @@ pub fn label_encode_dataframe(df: &mut DataFrame, categorical_columns: &[&str]) 
 
         let encoded_column = label_encode(col_pre_encoding);
 
-        println!("pang");
         df.hstack_mut(&[encoded_column]).unwrap();
     }
 
@@ -97,34 +96,32 @@ fn label_encode(col: Series) -> Series {
         .utf8()
         .unwrap()
         .into_iter()
-        .map(|elem| {
-            dbg!(&elem.unwrap());
-            elem
-        })
+        .map(|elem| elem)
         .collect();
 
-    dbg!(&variants);
-    let mut hm_categories: HashMap<String, u32> = HashMap::new();
+    let mut hm_categories: HashMap<String, f32> = HashMap::new();
 
     for (i, elem) in variants.iter().enumerate() {
         let x = match elem {
             Some(_) => elem.unwrap(),
             None => "",
-            // Some(elem) => todo!(),
-            // None => todo!(),
         };
-        dbg!(&x);
-        
-        hm_categories.insert(x.to_string(), i as u32);
+
+        hm_categories.insert(x.to_string(), i as f32);
     }
 
     println!("with the following mapping: \n{:?}", &hm_categories);
 
-    let encoded_column_vec: Vec<u32> = col
+    let encoded_column_vec: Vec<f32> = col
         .utf8()
         .unwrap()
         .into_iter()
-        .map(|elem| *hm_categories.get(&elem.unwrap().to_owned()).unwrap())
+        .map(|elem| {
+            match elem {
+                Some(_) => *hm_categories.get(&elem.unwrap().to_owned()).unwrap(),
+                None => f32::NAN,
+            }
+        })
         .collect();
 
     let encoded_column_slice = encoded_column_vec.as_slice();
@@ -202,7 +199,7 @@ pub fn xg_set_ground_truth(
 
 /// For every given column an entry in the schema as utf8 is generated.
 /// This ensures, that tangram can treat the column as enum and not automatically as int.
-fn generate_enum_column_schema(enum_cols: Vec<&str>) -> Schema {
+pub fn generate_enum_column_schema(enum_cols: &Vec<&str>) -> Schema {
     let mut enum_column_schema: Vec<_> = Vec::new();
 
     for col in enum_cols.iter() {
@@ -219,7 +216,7 @@ pub fn build_tangram_options<'a>(
 ) -> tangram_table::FromCsvOptions<'a> {
     // this is necessary if there are integer columns representing categories.
     // these columns need to get a special treatment
-    let enum_schema = generate_enum_column_schema(enum_cols.clone());
+    let enum_schema = generate_enum_column_schema(&enum_cols);
 
     let mut df = load_dataframe_from_file(
         format!("datasets/{dataset}/data.csv").as_str(),
@@ -276,7 +273,6 @@ pub fn get_tangram_matrix(
     let y_train = x_train.columns_mut().remove(target_column_idx);
     let y_test = x_test.columns_mut().remove(target_column_idx);
 
-    dbg!(&x_test);
 
     (x_train, x_test, y_train, y_test)
 }

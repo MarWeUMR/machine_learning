@@ -3,7 +3,7 @@ use xgboost_bindings::{parameters, Booster};
 
 use crate::ml::data_processing::{
     self, get_xg_matrix, label_encode_dataframe, load_dataframe_from_file,
-    one_hot_encode_dataframe, xg_set_ground_truth,
+    one_hot_encode_dataframe, xg_set_ground_truth, generate_enum_column_schema,
 };
 
 use eval_metrics::{
@@ -34,8 +34,10 @@ pub fn run(set: Datasets) {
     // use python to preprocess data
     // data_processing::run_through_python(dataset);
 
-    let mut df = load_dataframe_from_file(path, None);
-    dbg!(df.dtypes());
+    let schema = generate_enum_column_schema(&label_encode_cols);
+
+
+    let mut df = load_dataframe_from_file(path, Some(schema));
     label_encode_dataframe(&mut df, &label_encode_cols);
     one_hot_encode_dataframe(&mut df, &ohe_cols);
 
