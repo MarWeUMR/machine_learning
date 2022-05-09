@@ -5,10 +5,11 @@ mod ml;
 // TODO
 // heart disease datensatz testen
 // missing values bei titanic?
+// explizite option, encodings zu definieren
 
 fn main() {
     println!("XGBOOST\n");
-    // ml::xgbindings::run(ml::xgbindings::Datasets::Landcover);
+    ml::xgbindings::run(ml::xgbindings::Datasets::Landcover);
     println!("--------------------------\n\n");
 
     // ml::xgbindings::run(ml::xgbindings::Datasets::Titanic);
@@ -26,6 +27,10 @@ fn main() {
     // ml::xgbindings::run(ml::xgbindings::Datasets::Iris);
     println!("--------------------------\n\n");
 
+    ml::xgbindings::run(ml::xgbindings::Datasets::Heart);
+    println!("--------------------------\n\n");
+
+
     println!("TANGRAM\n");
     // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Boston);
     // println!("\n\n--------------------------\n\n");
@@ -37,5 +42,8 @@ fn main() {
     // println!("\n\n--------------------------\n\n");
     // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Urban);
     // println!("\n\n--------------------------\n\n");
-    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Landcover);
+    // ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Landcover);
+    // println!("\n\n--------------------------\n\n");
+    ml::tangram_wrapper::run(ml::tangram_wrapper::Datasets::Heart);
+
 }

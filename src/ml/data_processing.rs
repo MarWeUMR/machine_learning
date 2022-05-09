@@ -13,7 +13,6 @@ use polars::{
 use tangram_table::{Table, TableColumnType};
 use xgboost_bindings::DMatrix;
 
-
 pub fn get_multiclass_label_count(
     dataset: ndarray::ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>>,
 ) -> u32 {
@@ -46,7 +45,6 @@ pub fn write_tangram_splits(df: DataFrame, dataset: &str) {
         .has_header(true)
         .with_delimiter(b',')
         .finish(&mut x_train);
-
 
     // create test file for tangram
     let mut file =
@@ -81,11 +79,11 @@ pub fn get_train_test_split_arrays(
 pub fn label_encode_dataframe(df: &mut DataFrame, categorical_columns: &[&str]) {
     for col in categorical_columns.iter() {
         println!("label encoding: {}", col);
-
         let col_pre_encoding = df.drop_in_place(col).unwrap();
 
         let encoded_column = label_encode(col_pre_encoding);
 
+        println!("pang");
         df.hstack_mut(&[encoded_column]).unwrap();
     }
 
@@ -95,21 +93,41 @@ pub fn label_encode_dataframe(df: &mut DataFrame, categorical_columns: &[&str]) 
 fn label_encode(col: Series) -> Series {
     let unique_categories = col.unique().unwrap();
 
+    let variants: Vec<_> = unique_categories
+        .utf8()
+        .unwrap()
+        .into_iter()
+        .map(|elem| {
+            dbg!(&elem.unwrap());
+            elem
+        })
+        .collect();
+
+    dbg!(&variants);
     let mut hm_categories: HashMap<String, u32> = HashMap::new();
 
-    for (i, elem) in unique_categories.iter().enumerate() {
-        hm_categories.insert(String::from(elem.to_string()), i as u32);
+    for (i, elem) in variants.iter().enumerate() {
+        let x = match elem {
+            Some(_) => elem.unwrap(),
+            None => "",
+            // Some(elem) => todo!(),
+            // None => todo!(),
+        };
+        dbg!(&x);
+        
+        hm_categories.insert(x.to_string(), i as u32);
     }
 
     println!("with the following mapping: \n{:?}", &hm_categories);
 
     let encoded_column_vec: Vec<u32> = col
-        .iter()
-        .map(|elem| *hm_categories.get(&elem.to_string()).unwrap())
+        .utf8()
+        .unwrap()
+        .into_iter()
+        .map(|elem| *hm_categories.get(&elem.unwrap().to_owned()).unwrap())
         .collect();
 
     let encoded_column_slice = encoded_column_vec.as_slice();
-
     let encoded_col = Series::new(col.name(), encoded_column_slice.as_ref());
     encoded_col
 }
@@ -208,13 +226,11 @@ pub fn build_tangram_options<'a>(
         Some(enum_schema),
     );
 
-
     let mut btm: BTreeMap<String, TableColumnType> = BTreeMap::new();
 
     for col in enum_cols.iter() {
         let col = df.drop_in_place(col).unwrap();
         let uniques = col.unique().unwrap();
-
 
         let variants: Vec<_> = uniques
             .utf8()
@@ -260,6 +276,8 @@ pub fn get_tangram_matrix(
     let y_train = x_train.columns_mut().remove(target_column_idx);
     let y_test = x_test.columns_mut().remove(target_column_idx);
 
+    dbg!(&x_test);
+
     (x_train, x_test, y_train, y_test)
 }
 
@@ -300,7 +318,6 @@ fn split_data(
 }
 
 pub fn load_dataframe_from_file(path: &str, schema: Option<Schema>) -> DataFrame {
-
     match schema {
         Some(_) => {
             let df: DataFrame = CsvReader::from_path(path)

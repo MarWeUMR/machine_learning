@@ -29,6 +29,7 @@ pub enum Datasets {
     Boston,
     Cancer,
     Iris,
+    Heart,
 }
 
 pub fn run(set: Datasets) {
@@ -112,6 +113,7 @@ fn get_dataset_info<'a>(set: Datasets) -> (&'a str, usize, ModelType, Vec<&'a st
         Datasets::Boston => ("boston", 13, ModelType::Numeric, vec![]),
         Datasets::Cancer => ("cancer", 30, ModelType::Binary, vec![]),
         Datasets::Iris => ("iris", 4, ModelType::Multiclass, vec!["target"]),
+        Datasets::Heart => ("heart", 13, ModelType::Binary, vec!["diagnosis"]),
     };
     result
 }

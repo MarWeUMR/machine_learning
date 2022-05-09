@@ -1,10 +1,10 @@
 use ndarray::{ArrayBase, Dim, OwnedRepr};
-use xgboost_bindings::{
-    parameters,
-    Booster,
-};
+use xgboost_bindings::{parameters, Booster};
 
-use crate::ml::data_processing::{self, get_xg_matrix, xg_set_ground_truth, load_dataframe_from_file, label_encode_dataframe, one_hot_encode_dataframe};
+use crate::ml::data_processing::{
+    self, get_xg_matrix, label_encode_dataframe, load_dataframe_from_file,
+    one_hot_encode_dataframe, xg_set_ground_truth,
+};
 
 use eval_metrics::{
     classification::{BinaryConfusionMatrix, MultiConfusionMatrix},
@@ -22,6 +22,7 @@ pub enum Datasets {
     Boston,
     Cancer,
     Iris,
+    Heart,
 }
 
 pub fn run(set: Datasets) {
@@ -34,17 +35,14 @@ pub fn run(set: Datasets) {
     // data_processing::run_through_python(dataset);
 
     let mut df = load_dataframe_from_file(path, None);
-
+    dbg!(df.dtypes());
     label_encode_dataframe(&mut df, &label_encode_cols);
     one_hot_encode_dataframe(&mut df, &ohe_cols);
 
     // read preprocessed data to rust
     // preprocessing consists of encodeing (label/onehot) and train/test splitting
     let (x_train_array, x_test_array, y_train_array, y_test_array) =
-        data_processing::get_train_test_split_arrays(
-            df,
-            target_column,
-        );
+        data_processing::get_train_test_split_arrays(df, target_column);
 
     // get xgboost style matrices
     let (mut x_train, mut x_test) = get_xg_matrix(x_train_array, x_test_array);
@@ -108,12 +106,16 @@ fn evaluate_model(
             let n_unique = get_multiclass_label_count(ground_truth_labels);
             xg_multiclass_evaluation(scores, labels, n_unique);
         }
+        Datasets::Heart => {
+            xg_binary_evaluation(scores, labels, 0.5);
+        }
     }
 }
 
 fn get_dataset_metadata<'a>(
     set: Datasets,
 ) -> (&'a str, &'a str, &'a str, Vec<&'a str>, Vec<&'a str>) {
+    // (dataset, path, target_col_name, oh-encode, label_encode)
     let result = match set {
         Datasets::Titanic => (
             "titanic",
@@ -151,6 +153,20 @@ fn get_dataset_metadata<'a>(
             vec![],
             vec!["target"],
         ),
+        Datasets::Heart => (
+            "heart",
+            "datasets/heart/data.csv",
+            "diagnosis",
+            vec![],
+            vec![
+                "gender",
+                "chest_pain",
+                "resting_ecg_result",
+                "exercise_st_slope",
+                "thallium_stress_test",
+                "diagnosis",
+            ],
+        ),
     };
     result
 }
@@ -185,6 +201,10 @@ fn get_objective<'a>(
         Datasets::Iris => {
             println!("MultiSoftmax chosen");
             parameters::learning::Objective::MultiSoftprob(n_unique)
+        }
+        Datasets::Heart => {
+            println!("BinaryLogistic chosen");
+            parameters::learning::Objective::BinaryLogistic
         }
     };
     result
