@@ -10,6 +10,7 @@ use polars::{
     io::SerReader,
     prelude::*,
 };
+
 use tangram_table::{Table, TableColumnType};
 use xgboost_bindings::DMatrix;
 
@@ -116,11 +117,9 @@ fn label_encode(col: Series) -> Series {
         .utf8()
         .unwrap()
         .into_iter()
-        .map(|elem| {
-            match elem {
-                Some(_) => *hm_categories.get(&elem.unwrap().to_owned()).unwrap(),
-                None => f32::NAN,
-            }
+        .map(|elem| match elem {
+            Some(_) => *hm_categories.get(&elem.unwrap().to_owned()).unwrap(),
+            None => f32::NAN,
         })
         .collect();
 
@@ -257,11 +256,14 @@ pub fn get_tangram_matrix(
     Table,
     tangram_table::TableColumn,
     tangram_table::TableColumn,
+Table
 ) {
     let train_path = &format!("datasets/{dataset}/train_data.csv");
     let test_path = &format!("datasets/{dataset}/test_data.csv");
+    let x_path = &format!("datasets/{dataset}/data.csv");
     let csv_file_path_train = Path::new(train_path);
     let csv_file_path_test = Path::new(test_path);
+    let csv_x_path = Path::new(x_path);
 
     let options = build_tangram_options(dataset, enum_cols);
 
@@ -269,12 +271,18 @@ pub fn get_tangram_matrix(
 
     let mut x_train = Table::from_path(csv_file_path_train, options.clone(), &mut |_| {}).unwrap();
     let mut x_test = Table::from_path(csv_file_path_test, options.clone(), &mut |_| {}).unwrap();
+    let mut x = Table::from_path(csv_x_path, Default::default(), &mut |_| {}).unwrap();
 
     let y_train = x_train.columns_mut().remove(target_column_idx);
     let y_test = x_test.columns_mut().remove(target_column_idx);
 
+    (x_train, x_test, y_train, y_test, x)
+}
 
-    (x_train, x_test, y_train, y_test)
+pub fn tangram_table_from_dataframe(df: DataFrame, dataset: &str, enum_cols: Vec<&str>) -> Table {
+    let options = build_tangram_options(dataset, enum_cols);
+    let x = Table::from_dataframe(df, options.clone());
+    x.unwrap()
 }
 
 fn split_data(

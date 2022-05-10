@@ -1,5 +1,7 @@
-use crate::ml::data_processing::{get_tangram_matrix, write_tangram_splits, load_dataframe_from_file};
-
+use crate::ml::data_processing::{
+    get_tangram_matrix, load_dataframe_from_file, tangram_table_from_dataframe,
+    write_tangram_splits,
+};
 
 use ndarray::{prelude::*, OwnedRepr};
 use serde_json::json;
@@ -32,6 +34,33 @@ pub enum Datasets {
     Heart,
 }
 
+#[test]
+fn load_tangram_table_from_dataframe() {
+    //TODO: landcover und hear prüfen
+    let vals = [Datasets::Iris, Datasets::Cancer, Datasets::Urban, Datasets::Boston];
+
+    for set in vals.iter() {
+        let (dataset, target_column_idx, _model_type, enum_cols) = get_dataset_info(*set);
+
+        println!("Working on dataset: {}", dataset);
+
+        // use python to preprocess data
+        // data_processing::run_through_python(dataset);
+
+        // read data and write tangram compatible train/test split files
+        let df = load_dataframe_from_file(format!("datasets/{dataset}/data.csv").as_str(), None);
+
+        let t = tangram_table_from_dataframe(df.clone(), "iris", vec![]);
+
+        write_tangram_splits(df, dataset);
+
+        let (_x_train, _x_test, _y_train, _y_test, orig) =
+            get_tangram_matrix(dataset, target_column_idx, enum_cols);
+
+        assert_eq!(&t, &orig);
+    }
+}
+
 pub fn run(set: Datasets) {
     let (dataset, target_column_idx, model_type, enum_cols) = get_dataset_info(set);
 
@@ -42,9 +71,13 @@ pub fn run(set: Datasets) {
 
     // read data and write tangram compatible train/test split files
     let df = load_dataframe_from_file(format!("datasets/{dataset}/data.csv").as_str(), None);
+
+    let t = tangram_table_from_dataframe(df.clone(), "iris", vec![]);
+
     write_tangram_splits(df, dataset);
 
-    let (x_train, x_test, y_train, y_test) = get_tangram_matrix(dataset, target_column_idx, enum_cols);
+    let (x_train, x_test, y_train, y_test, orig) =
+        get_tangram_matrix(dataset, target_column_idx, enum_cols);
 
     // -------------------------------------------------------------------
     // Train the model using the correct algorithm for the given dataset
@@ -222,7 +255,6 @@ fn tangram_predict(
                 .predict(x_test.to_rows().view(), predictions.view_mut());
         }
         ModelType::Multiclass => {
-
             let mut arr = predictions
                 .clone()
                 .into_shape((x_test.nrows(), num_of_unique_target_values))
