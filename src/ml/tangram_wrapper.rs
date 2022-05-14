@@ -1,9 +1,10 @@
 use crate::ml::data_processing::{
-    get_tangram_matrix, load_dataframe_from_file, tangram_table_from_dataframe,
-    write_tangram_splits,
+    generate_enum_column_schema, get_tangram_matrix, load_dataframe_from_file,
+    tangram_table_from_dataframe, write_tangram_splits,
 };
 
 use ndarray::{prelude::*, OwnedRepr};
+
 use serde_json::json;
 use std::any::Any;
 
@@ -37,27 +38,50 @@ pub enum Datasets {
 #[test]
 fn load_tangram_table_from_dataframe() {
     //TODO: landcover und hear prüfen
-    let vals = [Datasets::Iris, Datasets::Cancer, Datasets::Urban, Datasets::Boston];
+    let vals = [
+        Datasets::Iris,
+        // Datasets::Cancer,
+        // Datasets::Urban,
+        // Datasets::Boston,
+        // Datasets::Heart,
+    ];
 
     for set in vals.iter() {
         let (dataset, target_column_idx, _model_type, enum_cols) = get_dataset_info(*set);
 
-        println!("Working on dataset: {}", dataset);
+        let opt = generate_enum_column_schema(&enum_cols);
+        let df =
+            load_dataframe_from_file(format!("datasets/{dataset}/data.csv").as_str(), Some(opt));
 
-        // use python to preprocess data
-        // data_processing::run_through_python(dataset);
-
-        // read data and write tangram compatible train/test split files
-        let df = load_dataframe_from_file(format!("datasets/{dataset}/data.csv").as_str(), None);
-
-        let t = tangram_table_from_dataframe(df.clone(), "iris", vec![]);
+        let t = tangram_table_from_dataframe(df.clone(), dataset, enum_cols.clone());
 
         write_tangram_splits(df, dataset);
 
         let (_x_train, _x_test, _y_train, _y_test, orig) =
             get_tangram_matrix(dataset, target_column_idx, enum_cols);
 
-        assert_eq!(&t, &orig);
+        let l0 = t.columns().get(0).unwrap();
+        let r0 = orig.columns().get(0).unwrap();
+
+        let l1 = t.columns().get(1).unwrap();
+        let r1 = orig.columns().get(1).unwrap();
+
+        let l2 = t.columns().get(2).unwrap();
+        let r2 = orig.columns().get(2).unwrap();
+
+        let l3 = t.columns().get(3).unwrap();
+        let r3 = orig.columns().get(3).unwrap();
+
+        let l4 = t.columns().get(4).unwrap();
+        let r4 = orig.columns().get(4).unwrap();
+
+        println!("{:?}", l4);
+
+        assert_eq!(l0, r0);
+        assert_eq!(l1, r1);
+        assert_eq!(l2, r2);
+        assert_eq!(l3, r3);
+        assert_eq!(l4, r4);
     }
 }
 

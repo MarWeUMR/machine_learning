@@ -291,9 +291,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.1.17"
+version = "3.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47582c09be7c8b32c0ab3a6181825ababb713fde6fff20fc573a3870dd45c6a0"
+checksum = "d2dbdf4bdacb33466e854ce889eee8dfd5729abf7ccd7664d0a2d60cd384440b"
 dependencies = [
  "atty",
  "bitflags",
@@ -2039,7 +2039,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0edd65d823916eb8401c16436864096efc9c7ee1efe060136b78503498a6c22c"
 dependencies = [
  "buffalo",
- "clap 3.1.17",
+ "clap 3.1.18",
  "maplit",
  "ndarray",
  "num",
@@ -2132,7 +2132,7 @@ checksum = "3837768658fe11c7647707da0abcd4f75abf4579122e36755158d736d1f243ed"
 dependencies = [
  "bitvec",
  "buffalo",
- "clap 3.1.17",
+ "clap 3.1.18",
  "itertools",
  "maplit",
  "ndarray",
